@@ -22,6 +22,7 @@ namespace Application.Posts.CommandHandlers
             var filePath = blobFile.Blob.Uri;
             var post = new Post
             {
+                Title = request.Title,
                 Content = request.PostContent,
                 FilePath = filePath
             };

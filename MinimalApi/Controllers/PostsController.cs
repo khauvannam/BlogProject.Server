@@ -20,7 +20,7 @@ public class PostsController : ControllerBase
     public async Task<IActionResult> CreatePost([FromForm] Post post)
     {
         var createPost = new CreatePost
-            { PostContent = post.Content, FileUpload = post.FileUpload };
+            { PostContent = post.Content, FileUpload = post.FileUpload, Title = post.Title };
         var newPost = await _mediator.Send(createPost);
         return Ok(newPost);
     }
