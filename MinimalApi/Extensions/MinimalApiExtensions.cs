@@ -24,16 +24,23 @@ namespace MinimalApi.Extensions
             builder.Services.AddCors();
         }
 
-        public static void RegisterEndpointDefinitions(this WebApplication app)
-        {
-            var endPointDefinition = typeof(Program).Assembly.GetTypes()
-                .Where(t => t.IsAssignableTo(typeof(IEndPointDefinitions)) && t is { IsAbstract: false, IsInterface: false })
-                .Select(Activator.CreateInstance).Cast<IEndPointDefinitions>();
-            foreach (var endpointDef in endPointDefinition)
-            {
-                endpointDef.RegisterEndpoint(app);
-            }
-        }
+        #region endpoint
+
+        /*  public static void RegisterEndpointDefinitions(this WebApplication app)
+          {
+              var endPointDefinition = typeof(Program).Assembly.GetTypes()
+                  .Where(t => t.IsAssignableTo(typeof(IEndPointDefinitions)) &&
+                              t is { IsAbstract: false, IsInterface: false })
+                  .Select(Activator.CreateInstance).Cast<IEndPointDefinitions>();
+              foreach (var endpointDef in endPointDefinition)
+              {
+                  endpointDef.RegisterEndpoint(app);
+              }
+          }
+  */
+
+        #endregion
+
 
         #region exception handler
 
@@ -81,6 +88,7 @@ namespace MinimalApi.Extensions
 
         public static void AddSwagger(this WebApplication app)
         {
+           
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();

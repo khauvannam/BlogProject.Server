@@ -10,7 +10,6 @@ namespace Domain.Models
         public DateTime CreatedAt { get; set; }
         public DateTime LastModified { get; set; }
         public string? FilePath { get; set; }
-        [NotMapped]
-        public IFormFile? FileUpload { get; set; }
+        [NotMapped] public IFormFile? FileUpload { get; set; }
     }
 }

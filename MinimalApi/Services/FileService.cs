@@ -2,6 +2,7 @@
 using Azure.Storage;
 using Azure.Storage.Blobs;
 using Domain.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace MinimalApi.Services
 {
@@ -45,7 +46,7 @@ namespace MinimalApi.Services
         public async Task<BlobResponseDto> UploadAsync(IFormFile? blob)
         {
             BlobResponseDto responseDto = new();
-            BlobClient client = _fileContainer.GetBlobClient(blob.FileName);
+            BlobClient client = _fileContainer.GetBlobClient(blob?.FileName);
             await using (Stream? data = blob.OpenReadStream())
             {
                 await client.UploadAsync(data);

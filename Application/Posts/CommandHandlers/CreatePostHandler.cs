@@ -19,7 +19,7 @@ namespace Application.Posts.CommandHandlers
         public async Task<Post> Handle(CreatePost request, CancellationToken cancellationToken)
         {
             var blobFile = await _fileService.UploadAsync(request.FileUpload);
-            string? filePath = blobFile.Blob.Uri;
+            var filePath = blobFile.Blob.Uri;
             var post = new Post
             {
                 Content = request.PostContent,
