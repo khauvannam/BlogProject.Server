@@ -2,7 +2,6 @@
 using Azure.Storage;
 using Azure.Storage.Blobs;
 using Domain.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace MinimalApi.Services
 {
@@ -45,18 +44,25 @@ namespace MinimalApi.Services
 
         public async Task<BlobResponseDto> UploadAsync(IFormFile? blob)
         {
-            BlobResponseDto responseDto = new();
-            BlobClient client = _fileContainer.GetBlobClient(blob?.FileName);
-            await using (Stream? data = blob.OpenReadStream())
+            try
             {
-                await client.UploadAsync(data);
-            }
+                BlobResponseDto responseDto = new();
+                BlobClient client = _fileContainer.GetBlobClient(blob?.FileName);
+                await using (Stream? data = blob?.OpenReadStream())
+                {
+                    await client.UploadAsync(data);
+                }
 
-            responseDto.Status = $"File {blob.FileName} has been uploaded.";
-            responseDto.Error = false;
-            responseDto.Blob.Uri = client.Uri.AbsoluteUri;
-            responseDto.Blob.Name = client.Name;
-            return responseDto;
+                responseDto.Status = $"File {blob.FileName} has been uploaded.";
+                responseDto.Error = false;
+                responseDto.Blob.Uri = client.Uri.AbsoluteUri;
+                responseDto.Blob.Name = client.Name;
+                return responseDto;
+            }
+            catch (Azure.RequestFailedException ex) when (ex.ErrorCode == "BlobAlreadyExists")
+            {
+                
+            }
         }
     }
 }

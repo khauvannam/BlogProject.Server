@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
 
 namespace Domain.Models
@@ -11,6 +12,6 @@ namespace Domain.Models
         public DateTime CreatedAt { get; set; }
         public DateTime LastModified { get; set; }
         public string? FilePath { get; set; }
-        [NotMapped] public IFormFile? FileUpload { get; set; }
+        [NotMapped] [JsonIgnore] public IFormFile? FileUpload { get; set; }
     }
 }
