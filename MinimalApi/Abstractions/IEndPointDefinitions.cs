@@ -1,7 +1,6 @@
-﻿namespace MinimalApi.Abstractions
+﻿namespace MinimalApi.Abstractions;
+
+public interface IEndPointDefinitions
 {
-    public interface IEndPointDefinitions
-    {
-        void RegisterEndpoint(WebApplication app);
-    }
+    void RegisterEndpoint(WebApplication app);
 }

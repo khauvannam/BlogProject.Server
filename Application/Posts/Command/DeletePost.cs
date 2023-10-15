@@ -1,10 +1,9 @@
 ﻿using Domain.Models;
 using MediatR;
 
-namespace Application.Posts.Command
+namespace Application.Posts.Command;
+
+public class DeletePost : IRequest
 {
-    public class DeletePost : IRequest
-    {
-        public int Id { get; set; }
-    }
+    public int Id { get; set; }
 }
