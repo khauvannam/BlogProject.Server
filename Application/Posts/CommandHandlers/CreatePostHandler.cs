@@ -13,18 +13,16 @@ public class CreatePostHandler : IRequestHandler<CreatePost, Post>
     public CreatePostHandler(IPostRepository postRepo, IFileService fileService)
     {
         _postRepo = postRepo;
-        _fileService = fileService;
     }
 
     public async Task<Post> Handle(CreatePost request, CancellationToken cancellationToken)
     {
-        var blobFile = await _fileService.UploadAsync(request.FileUpload);
-        var filePath = blobFile.Blob.Uri;
+        
         var post = new Post
         {
             Title = request.Title,
             Content = request.PostContent,
-            FilePath = filePath
+            FileUpload = request.FileUpload
         };
 
         return await _postRepo.CreatePost(post);

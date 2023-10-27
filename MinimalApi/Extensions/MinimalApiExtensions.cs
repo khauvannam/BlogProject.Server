@@ -1,5 +1,6 @@
 ﻿using Application.Abstraction;
 using Application.Posts.Command;
+using Application.Users.Command;
 using DataAccess;
 using DataAccess.Repository;
 using Microsoft.AspNetCore.Diagnostics;
@@ -18,7 +19,9 @@ public static class MinimalApiExtensions
         builder.Services.AddDbContext<SocialDbContext>(opt => opt.UseSqlServer(cs));
         builder.Services.AddScoped<IPostRepository, PostRepository>();
         builder.Services.AddScoped<IFileService, FileService>();
+        builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddMediatR(cfg => { cfg.RegisterServicesFromAssemblies(typeof(CreatePost).Assembly); });
+        builder.Services.AddMediatR(cfg => { cfg.RegisterServicesFromAssemblies(typeof(Register).Assembly); });
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddCors();
@@ -40,7 +43,7 @@ public static class MinimalApiExtensions
 */
 
     #endregion
-    
+
     #region exception handler
 
     public static void ExceptionHandler(this WebApplication app)

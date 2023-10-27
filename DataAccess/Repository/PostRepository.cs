@@ -1,5 +1,6 @@
 ﻿using Application.Abstraction;
 using Domain.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repository;
@@ -17,8 +18,11 @@ public class PostRepository : IPostRepository
 
     public async Task<Post> CreatePost(Post post)
     {
+        var blobFile = await _fileService.UploadAsync(post.FileUpload);
+        string? fileUploadName = blobFile.Blob.Uri;
         post.CreatedAt = DateTime.Now;
         post.LastModified = DateTime.Now;
+        post.FilePath = fileUploadName;
         _context.Posts.Add(post);
         await _context.SaveChangesAsync();
         return post;
@@ -29,7 +33,7 @@ public class PostRepository : IPostRepository
         var post = _context.Posts.FirstOrDefault(x => x.Id == id);
         string fileName = Path.GetFileNameWithoutExtension(post.FilePath);
         if (post is null) return;
-        _fileService.DeleteAsync(fileName);
+        await _fileService.DeleteAsync(fileName);
         _context.Posts.Remove(post);
         await _context.SaveChangesAsync();
     }
@@ -44,11 +48,20 @@ public class PostRepository : IPostRepository
         return await _context.Posts.FirstOrDefaultAsync(x => x.Id == id);
     }
 
-    public async Task<Post> UpdatePost(string PostContent, int id)
+    public async Task<Post> UpdatePost(IFormFile? UpdateFile, string PostContent, int id)
     {
         var post = _context.Posts.FirstOrDefault(x => x.Id == id);
+        var fileName = Path.GetFileNameWithoutExtension(post.FilePath);
         post.LastModified = DateTime.Now;
         post.Content = PostContent;
+        if (fileName != UpdateFile?.FileName)
+        {
+            await _fileService.DeleteAsync(fileName);
+            var blobFile = await _fileService.UploadAsync(UpdateFile);
+            string? newFilePath = blobFile.Blob.Uri;
+            post.FilePath = newFilePath;
+        }
+
         await _context.SaveChangesAsync();
         return post;
     }

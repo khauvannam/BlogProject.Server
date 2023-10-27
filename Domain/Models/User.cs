@@ -2,6 +2,9 @@
 
 public class User
 {
-    public string Username { get; set; } = string.Empty;
-    public string PasswordHash { get; set; } = string.Empty;
+    public Guid Id { get; set; } = new Guid();
+    public required string Username { get; set; }
+    public required string PasswordHash { get; set; }
+    public List<Post> Posts { get; set; }
+
 }
