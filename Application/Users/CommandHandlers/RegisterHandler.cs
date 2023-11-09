@@ -16,7 +16,11 @@ public class RegisterHandler : IRequestHandler<Register>
 
     public Task Handle(Register request, CancellationToken cancellationToken)
     {
-        var user = new User { Username = request.UserName, PasswordHash = request.PasswordHash };
+        var user = new RegisterUserDto
+        {
+            UserName = request.UserName, Password = request.Password, Email = request.Email,
+            ConfirmPassword = request.ConfirmPassword
+        };
         return _users.Register(user);
     }
 }

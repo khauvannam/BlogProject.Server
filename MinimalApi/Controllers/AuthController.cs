@@ -17,16 +17,13 @@ public class AuthController : Controller
     }
 
     [HttpGet("register")]
-    public async Task<IActionResult> Register([FromForm] UserDTO userDto)
+    public async Task<IActionResult> Register([FromForm] RegisterUserDto registerUserDto)
     {
-        var passwordHash = BCrypt.Net.BCrypt.HashPassword(userDto.Password);
-        var user = new Register { UserName = userDto.UserName, PasswordHash = passwordHash };
-        await _mediator.Send(user);
-        return Ok(user);
+        return Ok();
     }
 
-    public async Task<IActionResult> Login()
+    public async Task<IActionResult> Login([FromForm] RegisterUserDto registerUserDto)
     {
-        
+        return NoContent();
     }
 }

@@ -9,13 +9,13 @@ namespace MinimalApi.Services;
 
 public class FileService : IFileService
 {
-    private readonly string _storageAccount = "khauvannam";
+    private readonly BlobContainerClient _fileContainer;
 
     private readonly string _key =
         "d5YN024bRwdCZqwhyVN7Gxu498LhWoZkZnMqz+3rXtxPavbiXsYlZj2jy/ut1JTH0tYeKKj+7USu+AStvaZgYQ==";
 
-    private readonly BlobContainerClient _fileContainer;
     private readonly ILogger<FileService> _logger;
+    private readonly string _storageAccount = "khauvannam";
 
     public FileService(ILogger<FileService> logger)
     {

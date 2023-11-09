@@ -1,8 +1,8 @@
 ﻿using Application.Abstraction;
 using Application.Posts.Queries;
+using Domain.Entity.Post;
 using Domain.Models;
 using MediatR;
-
 
 namespace Application.Posts.QueriesHandlers;
 

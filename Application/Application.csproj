@@ -16,8 +16,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Users\QueriesHandlers\" />
-      <Folder Include="Users\Queries\" />
+        <Folder Include="Users\QueriesHandlers\"/>
+        <Folder Include="Users\Queries\"/>
     </ItemGroup>
 
 </Project>

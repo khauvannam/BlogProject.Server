@@ -1,4 +1,6 @@
-﻿using Application.Abstraction;
+﻿using System.Runtime.CompilerServices;
+using Application.Abstraction;
+using Domain.Entity.Post;
 using Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -16,22 +18,26 @@ public class PostRepository : IPostRepository
         _fileService = fileService;
     }
 
-    public async Task<Post> CreatePost(Post post)
+    public async Task<Post> CreatePost(CreatePostDto createPostDto)
     {
-        var blobFile = await _fileService.UploadAsync(post.FileUpload);
-        string? fileUploadName = blobFile.Blob.Uri;
-        post.CreatedAt = DateTime.Now;
-        post.LastModified = DateTime.Now;
-        post.FilePath = fileUploadName;
+        var blobFile = await _fileService.UploadAsync(createPostDto.FileUpload);
+        var fileUploadName = blobFile.Blob.Uri;
+        var post = new Post
+        {
+            Title = createPostDto.Title,
+            Content = createPostDto.Content,
+            FilePath = fileUploadName
+        };
+
         _context.Posts.Add(post);
         await _context.SaveChangesAsync();
         return post;
     }
 
-    public async Task DeletePost(int id)
+    public async Task DeletePost(Guid id)
     {
         var post = _context.Posts.FirstOrDefault(x => x.Id == id);
-        string fileName = Path.GetFileNameWithoutExtension(post.FilePath);
+        var fileName = Path.GetFileNameWithoutExtension(post.FilePath);
         if (post is null) return;
         await _fileService.DeleteAsync(fileName);
         _context.Posts.Remove(post);
@@ -43,22 +49,23 @@ public class PostRepository : IPostRepository
         return await _context.Posts.ToListAsync();
     }
 
-    public async Task<Post> GetsPostById(int id)
+    public async Task<Post> GetsPostById(Guid id)
     {
         return await _context.Posts.FirstOrDefaultAsync(x => x.Id == id);
     }
 
-    public async Task<Post> UpdatePost(IFormFile? UpdateFile, string PostContent, int id)
+    public async Task<Post> UpdatePost(EditPostDto editPostDto)
     {
-        var post = _context.Posts.FirstOrDefault(x => x.Id == id);
+        var post = _context.Posts.FirstOrDefault(x => x.Id == editPostDto.Id);
         var fileName = Path.GetFileNameWithoutExtension(post.FilePath);
         post.LastModified = DateTime.Now;
-        post.Content = PostContent;
-        if (fileName != UpdateFile?.FileName)
+        post.Title = editPostDto.Title;
+        post.Content = editPostDto.Content;
+        if (fileName != editPostDto.FileUpload?.FileName)
         {
             await _fileService.DeleteAsync(fileName);
-            var blobFile = await _fileService.UploadAsync(UpdateFile);
-            string? newFilePath = blobFile.Blob.Uri;
+            var blobFile = await _fileService.UploadAsync(editPostDto.FileUpload);
+            var newFilePath = blobFile.Blob.Uri;
             post.FilePath = newFilePath;
         }
 

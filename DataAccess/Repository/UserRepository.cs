@@ -1,4 +1,6 @@
 ﻿using Application.Abstraction;
+using Domain.Entity.Post;
+using Domain.Entity.User;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,16 +15,9 @@ public class UserRepository : IUserRepository
         _context = context;
     }
 
-    public async Task<User> Register(User user)
+    public async Task<User> Register(RegisterUserDto user)
     {
-        if (await _context.Users.AnyAsync(u => u.Username == user.Username))
-        {
-            throw new Exception("UserName is already taken");
-        }
-
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
-        return user;
+        throw new NotImplementedException();
     }
 
     public Task<List<Post>> Login(User user)

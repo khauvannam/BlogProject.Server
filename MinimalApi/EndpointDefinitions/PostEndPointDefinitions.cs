@@ -1,12 +1,4 @@
-﻿using Application.Posts.Command;
-using Application.Posts.Queries;
-using Domain.Models;
-using MediatR;
-using MinimalApi.Abstractions;
-using MinimalApi.Filter;
-
-namespace MinimalApi.EndpointDefinitions;
-
+﻿namespace MinimalApi.EndpointDefinitions;
 
 /*
     public class PostEndPointDefinitions : IEndPointDefinitions

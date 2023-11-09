@@ -1,8 +1,8 @@
 ﻿using Application.Posts.Command;
 using Application.Posts.Queries;
-using Domain.Models;
-using Microsoft.AspNetCore.Mvc;
+using Domain.Entity.Post;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace MinimalApi.Controllers;
 
@@ -18,16 +18,16 @@ public class PostsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreatePost([FromForm] Post post)
+    public async Task<IActionResult> CreatePost([FromForm] CreatePostDto createPostDto)
     {
         var createPost = new CreatePost
-            { PostContent = post.Content, FileUpload = post.FileUpload, Title = post.Title };
+            { PostContent = createPostDto.Content, FileUpload = createPostDto.FileUpload, Title = createPostDto.Title };
         var newPost = await _mediator.Send(createPost);
-        return CreatedAtRoute("GetPostById", new { post.Id }, newPost);
+        return CreatedAtRoute("GetPostById", new { newPost.Id }, newPost);
     }
 
-    [HttpGet("{id:int}", Name = "GetPostById")]
-    public async Task<IActionResult> GetPostById(int id)
+    [HttpGet("{id:guid}", Name = "GetPostById")]
+    public async Task<IActionResult> GetPostById(Guid id)
     {
         var post = new GetPostById { Id = id };
         var gotPost = await _mediator.Send(post);
@@ -42,11 +42,17 @@ public class PostsController : ControllerBase
         return Ok(newAllPost);
     }
 
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> DeletePost(int id)
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeletePost(Guid id)
     {
         var post = new DeletePost { Id = id };
         await _mediator.Send(post);
         return NoContent();
+    }
+
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> UpdatePostById([FromForm] EditPostDto editPostDto)
+    {
+        return Ok("Post updated successfully");
     }
 }
