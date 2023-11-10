@@ -21,7 +21,11 @@ public class PostsController : ControllerBase
     public async Task<IActionResult> CreatePost([FromForm] CreatePostDto createPostDto)
     {
         var createPost = new CreatePost
-            { PostContent = createPostDto.Content, FileUpload = createPostDto.FileUpload, Title = createPostDto.Title };
+        {
+            PostContent = createPostDto.Content,
+            FileUpload = createPostDto.FileUpload,
+            Title = createPostDto.Title
+        };
         var newPost = await _mediator.Send(createPost);
         return CreatedAtRoute("GetPostById", new { newPost.Id }, newPost);
     }
@@ -51,7 +55,7 @@ public class PostsController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdatePostById([FromForm] EditPostDto editPostDto)
+    public async Task<IActionResult> UpdatePostById(Guid id, [FromForm] EditPostDto editPostDto)
     {
         return Ok("Post updated successfully");
     }

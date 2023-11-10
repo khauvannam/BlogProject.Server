@@ -11,6 +11,9 @@ public class Post : PostModel
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     public DateTime LastModified { get; set; } = DateTime.Now;
     public string? FilePath { get; set; }
+    public bool Public { get; set; } = false;
+    public Guid UserId { get; set; }
+    public User.User User { get; set; } = null!;
 
     [NotMapped]
     public string? Slug { get; }
