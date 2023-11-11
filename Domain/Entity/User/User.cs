@@ -4,5 +4,5 @@ namespace Domain.Entity.User;
 
 public class User : IdentityUser<Guid>
 {
-    public List<Post.Post> Posts { get; set; }
+    public List<Post.Post> Posts { get; } = null!;
 }

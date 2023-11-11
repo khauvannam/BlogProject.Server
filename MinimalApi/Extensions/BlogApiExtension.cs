@@ -14,10 +14,9 @@ public static class BlogApiExtension
 {
     public static void RegisterService(this WebApplicationBuilder builder)
     {
-        var postConnectionString = builder.Configuration.GetConnectionString("Posts");
         var userConnectionString = builder.Configuration.GetConnectionString("Users");
         builder.Services.AddDbContext<SocialDbContext>(
-            opt => opt.UseSqlServer(postConnectionString)
+            opt => opt.UseSqlServer(userConnectionString)
         );
         builder.Services.AddDbContext<UserDbContext>(opt => opt.UseSqlServer(userConnectionString));
         builder.Services.AddScoped<IPostRepository, PostRepository>();
@@ -31,6 +30,7 @@ public static class BlogApiExtension
         {
             cfg.RegisterServicesFromAssemblies(typeof(Register).Assembly);
         });
+        builder.Services.AddAutoMapper(typeof(Program));
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddCors();

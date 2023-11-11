@@ -20,7 +20,7 @@ public class UserDbContext : IdentityDbContext<IdentityUser>
             .HasMany(e => e.Posts)
             .WithOne(e => e.User)
             .HasForeignKey(e => e.UserId)
-            .HasPrincipalKey(e => e.Id)
+            .HasPrincipalKey(e => e.Email)
             .IsRequired();
     }
 }

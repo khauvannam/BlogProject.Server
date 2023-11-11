@@ -4,7 +4,7 @@
     <option name="keyValueStorage">
       <map>
         <entry key="Common:buildConfiguration" value="Debug" />
-        <entry key="Common:f3a63030-5003-41b9-8df4-f30b3a00581b:dbContext" value="DataAccess.SocialDbContext" />
+        <entry key="Common:f3a63030-5003-41b9-8df4-f30b3a00581b:dbContext" value="DataAccess.UserDbContext" />
         <entry key="Common:noBuild" value="false" />
         <entry key="Common:outputFolder" value="Migrations" />
         <entry key="Common:targetFramework" value="net7.0" />

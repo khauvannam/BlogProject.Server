@@ -1,4 +1,5 @@
 ﻿using Application.Abstraction;
+using AutoMapper;
 using Domain.Entity.Post;
 using Domain.Entity.User;
 using Domain.Models;
@@ -8,11 +9,13 @@ namespace DataAccess.Repository;
 
 public class UserRepository : IUserRepository
 {
-    private readonly SocialDbContext _context;
+    private readonly UserDbContext _context;
+    private readonly IMapper _mapper;
 
-    public UserRepository(SocialDbContext context)
+    public UserRepository(UserDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
     public async Task<User> Register(RegisterUserDto user)

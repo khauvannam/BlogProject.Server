@@ -1,8 +1,9 @@
-﻿using MediatR;
+﻿using Domain.Entity.User;
+using MediatR;
 
 namespace Application.Users.Command;
 
-public class Register : IRequest
+public class Register : IRequest<User>
 {
     public string Email { get; init; }
 
