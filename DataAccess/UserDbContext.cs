@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess;
 
-public class UserDbContext : IdentityDbContext<IdentityUser>
+public class UserDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
 {
     public UserDbContext(DbContextOptions<UserDbContext> opt)
         : base(opt) { }
@@ -14,13 +14,11 @@ public class UserDbContext : IdentityDbContext<IdentityUser>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.Entity<Post>().HasKey(post => post.Id);
         modelBuilder
             .Entity<User>()
             .HasMany(e => e.Posts)
             .WithOne(e => e.User)
             .HasForeignKey(e => e.UserId)
-            .HasPrincipalKey(e => e.Email)
             .IsRequired();
     }
 }

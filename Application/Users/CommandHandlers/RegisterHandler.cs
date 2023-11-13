@@ -1,5 +1,6 @@
 ﻿using Application.Abstraction;
 using Application.Users.Command;
+using AutoMapper;
 using Domain.Entity.User;
 using Domain.Models;
 using MediatR;
@@ -9,21 +10,17 @@ namespace Application.Users.CommandHandlers;
 public class RegisterHandler : IRequestHandler<Register, User>
 {
     private readonly IUserRepository _users;
+    private readonly IMapper _mapper;
 
-    public RegisterHandler(IUserRepository users)
+    public RegisterHandler(IUserRepository users, IMapper mapper)
     {
         _users = users;
+        _mapper = mapper;
     }
 
     public Task<User> Handle(Register request, CancellationToken cancellationToken)
     {
-        var user = new RegisterUserDto
-        {
-            UserName = request.UserName,
-            Password = request.Password,
-            Email = request.Email,
-            ConfirmPassword = request.ConfirmPassword
-        };
+        var user = _mapper.Map<Register, RegisterUserDto>(request);
         return _users.Register(user);
     }
 }

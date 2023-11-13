@@ -12,8 +12,8 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
-        CreateMap<PostModel, IRequest<Post>>();
-        CreateMap<RegisterUserDto, IRequest<User>>();
-        CreateMap<IRequest<User>, IdentityUser>();
+        CreateMap<PostModel<Guid>, IRequest<Post>>();
+        CreateMap<RegisterUserDto, IRequest<User>>().ReverseMap();
+        CreateMap<RegisterUserDto, IdentityUser<Guid>>();
     }
 }

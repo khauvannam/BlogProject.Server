@@ -10,5 +10,5 @@ public class SocialDbContext : DbContext
     public SocialDbContext(DbContextOptions<SocialDbContext> opt)
         : base(opt) { }
 
-    public DbSet<Post>? Posts { get; set; }
+    public DbSet<Post> Posts { get; set; } = null!;
 }

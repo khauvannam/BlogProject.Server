@@ -38,7 +38,8 @@ public class PostRepository : IPostRepository
     {
         var post = _context.Posts.FirstOrDefault(x => x.Id == id);
         var fileName = Path.GetFileNameWithoutExtension(post.FilePath);
-        if (post is null) return;
+        if (post is null)
+            return;
         await _fileService.DeleteAsync(fileName);
         _context.Posts.Remove(post);
         await _context.SaveChangesAsync();
