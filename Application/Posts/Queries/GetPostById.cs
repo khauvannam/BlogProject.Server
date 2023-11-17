@@ -6,5 +6,5 @@ namespace Application.Posts.Queries;
 
 public class GetPostById : IRequest<Post>
 {
-    public Guid Id { get; init; }
+    public string Id { get; init; }
 }

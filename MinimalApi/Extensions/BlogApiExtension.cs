@@ -3,7 +3,9 @@ using Application.Posts.Command;
 using Application.Users.Command;
 using DataAccess;
 using DataAccess.Repository;
+using Domain.Entity.User;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MinimalApi.Filter;
 using MinimalApi.Services;
@@ -34,6 +36,30 @@ public static class BlogApiExtension
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddCors();
+    }
+
+    public static void AddIdentityApi(this IServiceCollection service)
+    {
+        service
+            .AddIdentity<IdentityUser<string>, IdentityRole>(
+                options => options.SignIn.RequireConfirmedAccount = false
+            )
+            .AddEntityFrameworkStores<UserDbContext>();
+        service.Configure<IdentityOptions>(option =>
+        {
+            // Password setting
+            option.Password.RequireDigit = true;
+            option.Password.RequiredLength = 5;
+            option.Password.RequireLowercase = true;
+
+            // Lockout setting
+            option.Lockout.AllowedForNewUsers = true;
+
+            // User setting
+            option.User.AllowedUserNameCharacters =
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+            option.User.RequireUniqueEmail = true;
+        });
     }
 
     #region exception handler

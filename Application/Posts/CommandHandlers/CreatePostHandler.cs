@@ -20,7 +20,7 @@ public class CreatePostHandler : IRequestHandler<CreatePost, Post>
         var post = new CreatePostDto
         {
             Title = request.Title,
-            Content = request.PostContent,
+            Content = request.Content,
             FileUpload = request.FileUpload
         };
 

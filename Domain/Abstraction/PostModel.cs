@@ -2,10 +2,7 @@
 
 namespace Domain.Abstraction;
 
-public abstract class PostModel<T>
+public abstract class PostModel<TKey> : APost
 {
-    [Key]
-    public T Id { get; set; }
-    public string? Title { get; set; }
-    public string? Content { get; set; }
+    public TKey Id { get; set; }
 }

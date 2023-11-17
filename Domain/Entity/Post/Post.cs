@@ -4,15 +4,18 @@ using Domain.Abstraction;
 
 namespace Domain.Entity.Post;
 
-public class Post : PostModel<Guid>
+public class Post : PostModel<string>
 {
-    public Post() => Slug = Title?.Trim().Replace(" ", "-");
+    public Post()
+    {
+        Slug = Title?.Trim().Replace(" ", "-");
+        Id = Guid.NewGuid().ToString();
+    }
 
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     public DateTime LastModified { get; set; } = DateTime.Now;
     public string? FilePath { get; set; }
-    public bool Public { get; set; } = false;
-    public Guid UserId { get; set; }
+    public string UserId { get; set; }
     public User.User User { get; set; } = null!;
 
     [NotMapped]

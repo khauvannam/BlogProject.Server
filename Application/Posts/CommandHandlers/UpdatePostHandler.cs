@@ -18,7 +18,11 @@ public class UpdatePostHandler : IRequestHandler<UpdatePost, Post>
     public async Task<Post> Handle(UpdatePost request, CancellationToken cancellationToken)
     {
         var updatedPost = new EditPostDto
-            { Content = request.PostContent, Id = request.Id, FileUpload = request.FileUpload, Title = request.Title };
+        {
+            Content = request.Content,
+            FileUpload = request.FileUpload,
+            Title = request.Title
+        };
         var post = await _postRepo.UpdatePost(updatedPost);
         return post;
     }

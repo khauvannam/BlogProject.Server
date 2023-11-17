@@ -1,5 +1,6 @@
 ﻿using Application.Posts.Command;
 using Application.Posts.Queries;
+using AutoMapper;
 using Domain.Entity.Post;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -11,27 +12,24 @@ namespace MinimalApi.Controllers;
 public class PostsController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly IMapper _mapper;
 
-    public PostsController(IMediator mediator)
+    public PostsController(IMediator mediator, IMapper mapper)
     {
         _mediator = mediator;
+        _mapper = mapper;
     }
 
     [HttpPost]
     public async Task<IActionResult> CreatePost([FromForm] CreatePostDto createPostDto)
     {
-        var createPost = new CreatePost
-        {
-            PostContent = createPostDto.Content,
-            FileUpload = createPostDto.FileUpload,
-            Title = createPostDto.Title
-        };
+        var createPost = _mapper.Map<CreatePostDto, CreatePost>(createPostDto);
         var newPost = await _mediator.Send(createPost);
-        return CreatedAtRoute("GetPostById", new { newPost.Id }, newPost);
+        return CreatedAtRoute(nameof(GetPostById), new { newPost.Id }, newPost);
     }
 
     [HttpGet("{id:guid}", Name = "GetPostById")]
-    public async Task<IActionResult> GetPostById(Guid id)
+    public async Task<IActionResult> GetPostById(string id)
     {
         var post = new GetPostById { Id = id };
         var gotPost = await _mediator.Send(post);
@@ -47,15 +45,15 @@ public class PostsController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeletePost(Guid id)
+    public async Task<IActionResult> DeletePost(string id)
     {
         var post = new DeletePost { Id = id };
         await _mediator.Send(post);
         return NoContent();
     }
 
-    [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdatePostById(Guid id, [FromForm] EditPostDto editPostDto)
+    [HttpPut("{id:string}")]
+    public async Task<IActionResult> UpdatePostById(string id, [FromForm] EditPostDto editPostDto)
     {
         return Ok("Post updated successfully");
     }

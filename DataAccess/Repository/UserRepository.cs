@@ -13,9 +13,13 @@ public class UserRepository : IUserRepository
 {
     private readonly UserDbContext _context;
     private readonly IMapper _mapper;
-    private readonly UserManager<User> _userManager;
+    private readonly UserManager<IdentityUser<string>> _userManager;
 
-    public UserRepository(UserDbContext context, IMapper mapper, UserManager<User> userManager)
+    public UserRepository(
+        UserDbContext context,
+        IMapper mapper,
+        UserManager<IdentityUser<string>> userManager
+    )
     {
         _context = context;
         _mapper = mapper;

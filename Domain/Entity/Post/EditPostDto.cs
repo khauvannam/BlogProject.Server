@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Domain.Entity.Post;
 
-public class EditPostDto : PostModel<Guid>
+public class EditPostDto : PostDto
 {
-    public IFormFile FileUpload { get; set; }
+    public string Id { get; init; }
 }

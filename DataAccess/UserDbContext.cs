@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess;
 
-public class UserDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
+public class UserDbContext : IdentityDbContext<IdentityUser<string>, IdentityRole, string>
 {
     public UserDbContext(DbContextOptions<UserDbContext> opt)
         : base(opt) { }
@@ -14,6 +14,7 @@ public class UserDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<Post>().HasKey(e => e.Id);
         modelBuilder
             .Entity<User>()
             .HasMany(e => e.Posts)

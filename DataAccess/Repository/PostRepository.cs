@@ -1,8 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Security.Claims;
 using Application.Abstraction;
 using Domain.Entity.Post;
-using Domain.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repository;
@@ -18,15 +16,17 @@ public class PostRepository : IPostRepository
         _fileService = fileService;
     }
 
-    public async Task<Post> CreatePost(CreatePostDto createPostDto)
+    public async Task<Post> CreatePost(CreatePostDto createPostDto, ClaimsPrincipal user)
     {
+        var userId = user.FindFirstValue(claimType: "UserIdentity") ?? string.Empty;
         var blobFile = await _fileService.UploadAsync(createPostDto.FileUpload);
         var fileUploadName = blobFile.Blob.Uri;
         var post = new Post
         {
             Title = createPostDto.Title,
             Content = createPostDto.Content,
-            FilePath = fileUploadName
+            FilePath = fileUploadName,
+            UserId = userId
         };
 
         _context.Posts.Add(post);
@@ -34,7 +34,12 @@ public class PostRepository : IPostRepository
         return post;
     }
 
-    public async Task DeletePost(Guid id)
+    public Task<Post> CreatePost(CreatePostDto createPost)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task DeletePost(string id)
     {
         var post = _context.Posts.FirstOrDefault(x => x.Id == id);
         var fileName = Path.GetFileNameWithoutExtension(post.FilePath);
@@ -50,7 +55,7 @@ public class PostRepository : IPostRepository
         return await _context.Posts.ToListAsync();
     }
 
-    public async Task<Post> GetsPostById(Guid id)
+    public async Task<Post> GetsPostById(string id)
     {
         return await _context.Posts.FirstOrDefaultAsync(x => x.Id == id);
     }
