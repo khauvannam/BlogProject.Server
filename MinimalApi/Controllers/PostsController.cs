@@ -44,7 +44,7 @@ public class PostsController : ControllerBase
         return Ok(newAllPost);
     }
 
-    [HttpDelete("{id:guid}")]
+    [HttpDelete("{id:alpha}")]
     public async Task<IActionResult> DeletePost(string id)
     {
         var post = new DeletePost { Id = id };
@@ -52,7 +52,7 @@ public class PostsController : ControllerBase
         return NoContent();
     }
 
-    [HttpPut("{id:string}")]
+    [HttpPut("{id:alpha}")]
     public async Task<IActionResult> UpdatePostById(string id, [FromForm] EditPostDto editPostDto)
     {
         return Ok("Post updated successfully");

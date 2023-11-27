@@ -2,7 +2,7 @@
 
 namespace Domain.Entity.User;
 
-public sealed class User : IdentityUser<string>
+public class User : IdentityUser<string>
 {
     public User() => Id = Guid.NewGuid().ToString();
 

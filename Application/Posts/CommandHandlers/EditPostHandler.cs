@@ -1,21 +1,20 @@
 ﻿using Application.Abstraction;
 using Application.Posts.Command;
 using Domain.Entity.Post;
-using Domain.Models;
 using MediatR;
 
 namespace Application.Posts.CommandHandlers;
 
-public class UpdatePostHandler : IRequestHandler<UpdatePost, Post>
+public class EditPostHandler : IRequestHandler<EditPost, Post>
 {
     private readonly IPostRepository _postRepo;
 
-    public UpdatePostHandler(IPostRepository postRepo)
+    public EditPostHandler(IPostRepository postRepo)
     {
         _postRepo = postRepo;
     }
 
-    public async Task<Post> Handle(UpdatePost request, CancellationToken cancellationToken)
+    public async Task<Post> Handle(EditPost request, CancellationToken cancellationToken)
     {
         var updatedPost = new EditPostDto
         {

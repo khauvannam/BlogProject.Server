@@ -1,9 +1,7 @@
 ﻿using Application.Users.Command;
 using AutoMapper;
 using Domain.Entity.User;
-using Domain.Models;
 using MediatR;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MinimalApi.Controllers;
@@ -21,16 +19,18 @@ public class AuthController : Controller
         _mapper = mapper;
     }
 
-    [HttpGet("register")]
-    public async Task<IActionResult> Register([FromForm] RegisterUserDto registerUserDto)
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] RegisterUserDto registerUserDto)
     {
         var user = _mapper.Map<RegisterUserDto, Register>(registerUserDto);
-        var newUser = await _mediator.Send(user);
-        return Ok(newUser);
+        await _mediator.Send(user);
+        return Ok($"Your account with username {user.UserName} is created successful");
     }
 
-    public async Task<IActionResult> Login([FromForm] RegisterUserDto registerUserDto)
+    [HttpGet("login")]
+    public IActionResult Login()
     {
-        return NoContent();
+        // Your login logic
+        return Ok("Login Successful");
     }
 }

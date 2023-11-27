@@ -4,35 +4,39 @@ using AutoMapper;
 using Domain.Entity.Post;
 using Domain.Entity.User;
 using Domain.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 
-namespace DataAccess.Repository;
+namespace Infrastructure.Repository;
 
 public class UserRepository : IUserRepository
 {
     private readonly UserDbContext _context;
     private readonly IMapper _mapper;
-    private readonly UserManager<IdentityUser<string>> _userManager;
+    private readonly UserManager<User> _userManager;
+    private readonly SignInManager<User> _signInManager;
 
     public UserRepository(
         UserDbContext context,
         IMapper mapper,
-        UserManager<IdentityUser<string>> userManager
+        UserManager<User> userManager,
+        SignInManager<User> signInManager
     )
     {
         _context = context;
         _mapper = mapper;
         _userManager = userManager;
+        _signInManager = signInManager;
     }
 
-    public async Task<User> Register(RegisterUserDto userModel)
+    public async Task Register(RegisterUserDto userModel)
     {
         var user = _mapper.Map<RegisterUserDto, User>(userModel);
         var result = await _userManager.CreateAsync(user, userModel.Password);
         if (result.Succeeded)
         {
-            _context.Users.Add(user);
             await _context.SaveChangesAsync();
             await _userManager.AddClaimAsync(user, new Claim("UserIdentity", $@"{user.Id}"));
         }
@@ -43,7 +47,6 @@ public class UserRepository : IUserRepository
                 throw new Exception($"{error}");
             }
         }
-        return user;
     }
 
     public Task<List<Post>> Login(User user)

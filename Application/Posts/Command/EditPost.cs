@@ -6,4 +6,4 @@ using Microsoft.AspNetCore.Http;
 
 namespace Application.Posts.Command;
 
-public class UpdatePost : PostDto, IRequest<Post> { }
+public class EditPost : PostDto, IRequest<Post> { }

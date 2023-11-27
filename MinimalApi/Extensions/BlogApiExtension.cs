@@ -1,8 +1,9 @@
 ﻿using Application.Abstraction;
+using Application.Mapping;
 using Application.Posts.Command;
 using Application.Users.Command;
-using DataAccess;
-using DataAccess.Repository;
+using Infrastructure;
+using Infrastructure.Repository;
 using Domain.Entity.User;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
@@ -32,7 +33,7 @@ public static class BlogApiExtension
         {
             cfg.RegisterServicesFromAssemblies(typeof(Register).Assembly);
         });
-        builder.Services.AddAutoMapper(typeof(Program));
+        builder.Services.AddAutoMapper(typeof(PostProfile), typeof(UserProfile));
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddCors();
@@ -40,17 +41,20 @@ public static class BlogApiExtension
 
     public static void AddIdentityApi(this IServiceCollection service)
     {
+        service.AddHttpContextAccessor();
         service
-            .AddIdentity<IdentityUser<string>, IdentityRole>(
+            .AddIdentity<User, IdentityRole>(
                 options => options.SignIn.RequireConfirmedAccount = false
             )
             .AddEntityFrameworkStores<UserDbContext>();
         service.Configure<IdentityOptions>(option =>
         {
             // Password setting
-            option.Password.RequireDigit = true;
-            option.Password.RequiredLength = 5;
-            option.Password.RequireLowercase = true;
+            option.Password.RequireDigit = false;
+            option.Password.RequiredLength = 3;
+            option.Password.RequireLowercase = false;
+            option.Password.RequireNonAlphanumeric = false;
+            option.Password.RequireUppercase = false;
 
             // Lockout setting
             option.Lockout.AllowedForNewUsers = true;

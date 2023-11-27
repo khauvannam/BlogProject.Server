@@ -3,7 +3,7 @@ using Domain.Entity.User;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace DataAccess;
+namespace Infrastructure;
 
 public class SocialDbContext : DbContext
 {

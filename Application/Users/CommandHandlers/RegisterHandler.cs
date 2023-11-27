@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Application.Users.CommandHandlers;
 
-public class RegisterHandler : IRequestHandler<Register, User>
+public class RegisterHandler : IRequestHandler<Register>
 {
     private readonly IUserRepository _users;
     private readonly IMapper _mapper;
@@ -18,7 +18,7 @@ public class RegisterHandler : IRequestHandler<Register, User>
         _mapper = mapper;
     }
 
-    public Task<User> Handle(Register request, CancellationToken cancellationToken)
+    public Task Handle(Register request, CancellationToken cancellationToken)
     {
         var user = _mapper.Map<Register, RegisterUserDto>(request);
         return _users.Register(user);

@@ -1,51 +1,64 @@
 ﻿using System.Security.Claims;
 using Application.Abstraction;
+using AutoMapper;
 using Domain.Entity.Post;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
-namespace DataAccess.Repository;
+namespace Infrastructure.Repository;
 
 public class PostRepository : IPostRepository
 {
     private readonly SocialDbContext _context;
+    private readonly IMapper _mapper;
     private readonly IFileService _fileService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public PostRepository(SocialDbContext context, IFileService fileService)
+    private async Task<string> GenerateFilePath(IFormFile file)
     {
-        _context = context;
-        _fileService = fileService;
+        var blobFile = await _fileService.UploadAsync(file);
+        return blobFile.Blob.Uri ?? string.Empty;
     }
 
-    public async Task<Post> CreatePost(CreatePostDto createPostDto, ClaimsPrincipal user)
+    public PostRepository(
+        SocialDbContext context,
+        IMapper mapper,
+        IFileService fileService,
+        IHttpContextAccessor httpContextAccessor
+    )
     {
-        var userId = user.FindFirstValue(claimType: "UserIdentity") ?? string.Empty;
-        var blobFile = await _fileService.UploadAsync(createPostDto.FileUpload);
-        var fileUploadName = blobFile.Blob.Uri;
-        var post = new Post
-        {
-            Title = createPostDto.Title,
-            Content = createPostDto.Content,
-            FilePath = fileUploadName,
-            UserId = userId
-        };
+        _context = context;
+        _mapper = mapper;
+        _fileService = fileService;
+        _httpContextAccessor = httpContextAccessor;
+    }
 
+    public async Task<Post> CreatePost(CreatePostDto createPostDto)
+    {
+        var userId =
+            _httpContextAccessor.HttpContext?.User.FindFirstValue(claimType: "UserIdentity")
+            ?? string.Empty;
+        var post = _mapper.Map<CreatePostDto, Post>(createPostDto);
+        if (createPostDto is { FileUpload: not null })
+        {
+            var filePath = await GenerateFilePath(createPostDto.FileUpload);
+            post.FilePath = filePath;
+        }
+
+        post.UserId = userId;
         _context.Posts.Add(post);
         await _context.SaveChangesAsync();
         return post;
     }
 
-    public Task<Post> CreatePost(CreatePostDto createPost)
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task DeletePost(string id)
     {
         var post = _context.Posts.FirstOrDefault(x => x.Id == id);
-        var fileName = Path.GetFileNameWithoutExtension(post.FilePath);
         if (post is null)
-            return;
-        await _fileService.DeleteAsync(fileName);
+            throw new Exception("Post not available");
+        var fileName = Path.GetFileNameWithoutExtension(post.FilePath);
+        if (fileName != null)
+            await _fileService.DeleteAsync(fileName);
         _context.Posts.Remove(post);
         await _context.SaveChangesAsync();
     }
@@ -57,7 +70,8 @@ public class PostRepository : IPostRepository
 
     public async Task<Post> GetsPostById(string id)
     {
-        return await _context.Posts.FirstOrDefaultAsync(x => x.Id == id);
+        return await _context.Posts.FirstOrDefaultAsync(x => x.Id == id)
+            ?? throw new Exception("Can not find any post");
     }
 
     public async Task<Post> UpdatePost(EditPostDto editPostDto)

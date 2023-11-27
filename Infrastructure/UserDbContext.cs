@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace DataAccess;
+namespace Infrastructure;
 
-public class UserDbContext : IdentityDbContext<IdentityUser<string>, IdentityRole, string>
+public class UserDbContext : IdentityDbContext<User, IdentityRole, string>
 {
     public UserDbContext(DbContextOptions<UserDbContext> opt)
         : base(opt) { }
