@@ -1,4 +1,4 @@
-﻿namespace MinimalApi.EndpointDefinitions;
+﻿namespace Blog_Api.EndpointDefinitions;
 
 
 /*

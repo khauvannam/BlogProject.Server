@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Domain.Enum;
+using Microsoft.AspNetCore.Identity;
 
 namespace Domain.Entity.User;
 
-public class User : IdentityUser<string>
+public sealed class User : IdentityUser<string>
 {
     public User() => Id = Guid.NewGuid().ToString();
 
-    public List<Post.Post> Posts { get; } = null!;
+    public IQueryable<Post.Post> Posts { get; } = null!;
 }

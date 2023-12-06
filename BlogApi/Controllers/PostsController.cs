@@ -5,7 +5,7 @@ using Domain.Entity.Post;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace MinimalApi.Controllers;
+namespace Blog_Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]

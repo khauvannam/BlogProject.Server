@@ -2,29 +2,34 @@
 using Application.Mapping;
 using Application.Posts.Command;
 using Application.Users.Command;
+using Azure.Identity;
+using Blog_Api.Filter;
+using Blog_Api.Services;
+using Domain.Entity.User;
 using Infrastructure;
 using Infrastructure.Repository;
-using Domain.Entity.User;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using MinimalApi.Filter;
-using MinimalApi.Services;
 
-namespace MinimalApi.Extensions;
+namespace Blog_Api.Extensions;
 
 public static class BlogApiExtension
 {
     public static void RegisterService(this WebApplicationBuilder builder)
     {
-        var userConnectionString = builder.Configuration.GetConnectionString("Users");
+        var userConnectionString = builder.Configuration["blogsql"]!;
+        Console.WriteLine(userConnectionString);
         builder.Services.AddDbContext<SocialDbContext>(
             opt => opt.UseSqlServer(userConnectionString)
         );
         builder.Services.AddDbContext<UserDbContext>(opt => opt.UseSqlServer(userConnectionString));
+
         builder.Services.AddScoped<IPostRepository, PostRepository>();
         builder.Services.AddTransient<IFileService, FileService>();
         builder.Services.AddScoped<IUserRepository, UserRepository>();
+        builder.Services.AddSingleton<IConfiguration>();
+
         builder.Services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssemblies(typeof(CreatePost).Assembly);
@@ -121,6 +126,13 @@ public static class BlogApiExtension
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+    }
+
+    public static void ConfigurationServices(this WebApplicationBuilder builder)
+    {
+        var keyVaultUrl = new Uri(builder.Configuration.GetSection("KeyVaultURL").Value!);
+        var azureCredential = new DefaultAzureCredential();
+        builder.Configuration.AddAzureKeyVault(keyVaultUrl, azureCredential);
     }
 
     #region endpoint

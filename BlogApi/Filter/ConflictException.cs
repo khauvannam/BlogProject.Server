@@ -1,4 +1,4 @@
-﻿namespace MinimalApi.Filter;
+﻿namespace Blog_Api.Filter;
 
 public class ConflictException : Exception
 {

@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application", "Application\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{F3A63030-5003-41B9-8DF4-F30B3A00581B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinimalApi", "MinimalApi\MinimalApi.csproj", "{252B3E72-0DEA-4964-A91E-DAFA23DC9673}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlogApi", "BlogApi\BlogApi.csproj", "{252B3E72-0DEA-4964-A91E-DAFA23DC9673}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

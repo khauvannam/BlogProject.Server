@@ -42,10 +42,7 @@ public class UserRepository : IUserRepository
         }
         else
         {
-            foreach (var error in result.Errors)
-            {
-                throw new Exception($"{error}");
-            }
+            throw new Exception();
         }
     }
 

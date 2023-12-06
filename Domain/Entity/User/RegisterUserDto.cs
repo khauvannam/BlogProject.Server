@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Domain.Enum;
 
 namespace Domain.Entity.User;
 
@@ -8,8 +7,6 @@ public class RegisterUserDto
     [EmailAddress]
     [Required(ErrorMessage = "Email is required")]
     public string Email { get; init; } = null!;
-
-    public Role Role { get; set; } = Role.BasicUser;
 
     [Required]
     public string UserName { get; init; }

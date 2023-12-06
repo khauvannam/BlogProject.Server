@@ -1,4 +1,4 @@
-﻿namespace MinimalApi.Abstractions;
+﻿namespace Blog_Api.Abstractions;
 
 public interface IEndPointDefinitions
 {

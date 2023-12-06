@@ -4,5 +4,5 @@ public enum Role
 {
     Admin,
     BasicUser,
-    PremiumUser
+    PremiumUser,
 }
