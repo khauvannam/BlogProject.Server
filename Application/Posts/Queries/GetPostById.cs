@@ -1,10 +1,30 @@
-﻿using Domain.Entity.Post;
+﻿using Application.Abstraction;
+using Domain.Entity.Post;
 using Domain.Models;
 using MediatR;
 
 namespace Application.Posts.Queries;
 
-public class GetPostById : IRequest<Post>
+public class GetPostById
 {
-    public string Id { get; init; }
+    public class Command : IRequest<Post>
+    {
+        public string Id { get; init; }
+    }
+
+    public class Handler : IRequestHandler<Command, Post>
+    {
+        private readonly IPostRepository _postRepo;
+
+        public Handler(IPostRepository postRepo)
+        {
+            _postRepo = postRepo;
+        }
+
+        public async Task<Post> Handle(Command request, CancellationToken cancellationToken)
+        {
+            var post = await _postRepo.GetsPostById(request.Id);
+            return post;
+        }
+    }
 }

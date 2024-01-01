@@ -16,19 +16,11 @@ namespace Blog_Api.Extensions;
 
 public static class BlogApiExtension
 {
-    public static void RegisterService(this WebApplicationBuilder builder)
+    public static void RegisterDependencyInjection(this WebApplicationBuilder builder)
     {
-        var userConnectionString = builder.Configuration["blogsql"]!;
-        Console.WriteLine(userConnectionString);
-        builder.Services.AddDbContext<SocialDbContext>(
-            opt => opt.UseSqlServer(userConnectionString)
-        );
-        builder.Services.AddDbContext<UserDbContext>(opt => opt.UseSqlServer(userConnectionString));
-
         builder.Services.AddScoped<IPostRepository, PostRepository>();
         builder.Services.AddTransient<IFileService, FileService>();
         builder.Services.AddScoped<IUserRepository, UserRepository>();
-        builder.Services.AddSingleton<IConfiguration>();
 
         builder.Services.AddMediatR(cfg =>
         {
@@ -39,6 +31,16 @@ public static class BlogApiExtension
             cfg.RegisterServicesFromAssemblies(typeof(Register).Assembly);
         });
         builder.Services.AddAutoMapper(typeof(PostProfile), typeof(UserProfile));
+    }
+
+    public static void RegisterService(this WebApplicationBuilder builder)
+    {
+        var userConnectionString = new KeyVault().GetSecret("blogsql");
+        builder.Services.AddDbContext<SocialDbContext>(
+            opt => opt.UseSqlServer(userConnectionString)
+        );
+        builder.Services.AddDbContext<UserDbContext>(opt => opt.UseSqlServer(userConnectionString));
+
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddCors();

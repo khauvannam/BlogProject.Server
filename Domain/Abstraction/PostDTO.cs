@@ -2,9 +2,10 @@
 
 namespace Domain.Abstraction;
 
-public class APost
+public abstract class PostDTO
 {
     public string? Title { get; set; }
     public string? Content { get; set; }
     public bool Public { get; set; } = false;
+    public IFormFile? FileUpload { get; init; }
 }

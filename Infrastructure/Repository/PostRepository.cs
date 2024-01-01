@@ -33,16 +33,16 @@ public class PostRepository : IPostRepository
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<Post> CreatePost(CreatePostDto createPostDto)
+    public async Task<Post> CreatePost(CreatePostDTO createPostDto)
     {
         var userId =
             _httpContextAccessor.HttpContext?.User.FindFirstValue(claimType: "UserIdentity")
             ?? string.Empty;
-        var post = _mapper.Map<CreatePostDto, Post>(createPostDto);
+        var post = _mapper.Map<CreatePostDTO, Post>(createPostDto);
         if (createPostDto is { FileUpload: not null })
         {
             var filePath = await GenerateFilePath(createPostDto.FileUpload);
-            post.FilePath = filePath;
+            post.MainImage = filePath;
         }
 
         post.UserId = userId;
@@ -56,9 +56,8 @@ public class PostRepository : IPostRepository
         var post = _context.Posts.FirstOrDefault(x => x.Id == id);
         if (post is null)
             throw new Exception("Post not available");
-        var fileName = Path.GetFileNameWithoutExtension(post.FilePath);
-        if (fileName != null)
-            await _fileService.DeleteAsync(fileName);
+        var fileName = Path.GetFileNameWithoutExtension(post.MainImage);
+        await _fileService.DeleteAsync(fileName);
         _context.Posts.Remove(post);
         await _context.SaveChangesAsync();
     }
@@ -74,10 +73,10 @@ public class PostRepository : IPostRepository
             ?? throw new Exception("Can not find any post");
     }
 
-    public async Task<Post> UpdatePost(EditPostDto editPostDto)
+    public async Task<Post> UpdatePost(EditPostDTO editPostDto)
     {
         var post = _context.Posts.FirstOrDefault(x => x.Id == editPostDto.Id);
-        var fileName = Path.GetFileNameWithoutExtension(post.FilePath);
+        var fileName = Path.GetFileNameWithoutExtension(post.MainImage);
         post.LastModified = DateTime.Now;
         post.Title = editPostDto.Title;
         post.Content = editPostDto.Content;
@@ -86,7 +85,7 @@ public class PostRepository : IPostRepository
             await _fileService.DeleteAsync(fileName);
             var blobFile = await _fileService.UploadAsync(editPostDto.FileUpload);
             var newFilePath = blobFile.Blob.Uri;
-            post.FilePath = newFilePath;
+            post.MainImage = newFilePath;
         }
 
         await _context.SaveChangesAsync();

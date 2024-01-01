@@ -4,6 +4,8 @@ using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Domain.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace Blog_Api.Services;
 
@@ -11,8 +13,7 @@ public class FileService : IFileService
 {
     private readonly BlobContainerClient _fileContainer;
 
-    private readonly string _key =
-        "d5YN024bRwdCZqwhyVN7Gxu498LhWoZkZnMqz+3rXtxPavbiXsYlZj2jy/ut1JTH0tYeKKj+7USu+AStvaZgYQ==";
+    private readonly string _key = new KeyVault().GetSecret("blogblob");
 
     private readonly ILogger<FileService> _logger;
     private readonly string _storageAccount = "khauvannam";

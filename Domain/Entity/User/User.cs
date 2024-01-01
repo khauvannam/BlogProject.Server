@@ -1,5 +1,4 @@
-﻿using Domain.Enum;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 
 namespace Domain.Entity.User;
 

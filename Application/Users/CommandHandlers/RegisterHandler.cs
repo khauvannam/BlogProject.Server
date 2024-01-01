@@ -20,7 +20,7 @@ public class RegisterHandler : IRequestHandler<Register>
 
     public Task Handle(Register request, CancellationToken cancellationToken)
     {
-        var user = _mapper.Map<Register, RegisterUserDto>(request);
+        var user = _mapper.Map<Register, RegisterDTO>(request);
         return _users.Register(user);
     }
 }

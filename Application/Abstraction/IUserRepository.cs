@@ -6,6 +6,6 @@ namespace Application.Abstraction;
 
 public interface IUserRepository
 {
-    public Task Register(RegisterUserDto user);
-    public Task<List<Post>> Login(User user);
+    public Task Register(RegisterDTO user);
+    public Task<string> Login(LoginDTO userDto);
 }

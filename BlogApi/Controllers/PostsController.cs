@@ -1,6 +1,8 @@
 ﻿using Application.Posts.Command;
 using Application.Posts.Queries;
 using AutoMapper;
+using Blog_Api.Services;
+using Domain.Abstraction;
 using Domain.Entity.Post;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -21,9 +23,9 @@ public class PostsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreatePost([FromForm] CreatePostDto createPostDto)
+    public async Task<IActionResult> CreatePost([FromForm] PostDTO PostDto)
     {
-        var createPost = _mapper.Map<CreatePostDto, CreatePost>(createPostDto);
+        var createPost = _mapper.Map<PostDTO, CreatePost.Command>(PostDto);
         var newPost = await _mediator.Send(createPost);
         return CreatedAtRoute(nameof(GetPostById), new { newPost.Id }, newPost);
     }
@@ -31,7 +33,7 @@ public class PostsController : ControllerBase
     [HttpGet("{id:guid}", Name = "GetPostById")]
     public async Task<IActionResult> GetPostById(string id)
     {
-        var post = new GetPostById { Id = id };
+        var post = new GetPostById.Command { Id = id };
         var gotPost = await _mediator.Send(post);
         return Ok(gotPost);
     }
@@ -39,7 +41,7 @@ public class PostsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllPost()
     {
-        var allPost = new GetAllPosts();
+        var allPost = new GetAllPosts.Command();
         var newAllPost = await _mediator.Send(allPost);
         return Ok(newAllPost);
     }
@@ -47,14 +49,15 @@ public class PostsController : ControllerBase
     [HttpDelete("{id:alpha}")]
     public async Task<IActionResult> DeletePost(string id)
     {
-        var post = new DeletePost { Id = id };
+        var post = new DeletePost.Command { Id = id };
         await _mediator.Send(post);
         return NoContent();
     }
 
     [HttpPut("{id:alpha}")]
-    public async Task<IActionResult> UpdatePostById(string id, [FromForm] EditPostDto editPostDto)
+    public async Task<IActionResult> UpdatePostById(string id, [FromForm] PostDTO PostDto)
     {
-        return Ok("Post updated successfully");
+        var key = new KeyVault().GetSecret("blogblobkey");
+        return Ok($"{key}");
     }
 }

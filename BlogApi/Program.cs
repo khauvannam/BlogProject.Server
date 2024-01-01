@@ -2,7 +2,9 @@ using Blog_Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.ConfigurationServices();
+builder.RegisterDependencyInjection();
 builder.RegisterService();
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddIdentityApi();
 

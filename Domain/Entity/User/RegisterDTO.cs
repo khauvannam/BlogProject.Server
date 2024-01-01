@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Domain.Enum;
 
 namespace Domain.Entity.User;
 
-public class RegisterUserDto
+public class RegisterDTO
 {
     [EmailAddress]
     [Required(ErrorMessage = "Email is required")]
@@ -18,4 +19,6 @@ public class RegisterUserDto
     [DataType(DataType.Password)]
     [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
     public string ConfirmPassword { get; init; }
+
+    public string SetRole { get; set; } = nameof(Role.BasicUser);
 }
