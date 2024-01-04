@@ -3,17 +3,18 @@ using Azure;
 using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using Domain.Models;
+using Domain.Entity.Blob;
+using Domain.Enum;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
-namespace Blog_Api.Services;
+namespace Infrastructure.Services;
 
 public class FileService : IFileService
 {
     private readonly BlobContainerClient _fileContainer;
 
-    private readonly string _key = new KeyVault().GetSecret("blogblob");
+    private readonly string _key = SecretService.GetSecret($"{nameof(Secret.blogblobkey)}");
 
     private readonly ILogger<FileService> _logger;
     private readonly string _storageAccount = "khauvannam";

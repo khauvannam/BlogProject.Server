@@ -3,7 +3,7 @@ using Domain.Enum;
 
 namespace Domain.Entity.User;
 
-public class RegisterDTO
+public class RegisterDto
 {
     [EmailAddress]
     [Required(ErrorMessage = "Email is required")]
@@ -20,5 +20,5 @@ public class RegisterDTO
     [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
     public string ConfirmPassword { get; init; }
 
-    public string SetRole { get; set; } = nameof(Role.BasicUser);
+    public Role SetRole { get; set; }
 }

@@ -1,13 +1,13 @@
 ﻿using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 
-namespace Blog_Api.Services;
+namespace Infrastructure.Services;
 
-public class KeyVault
+public static class SecretService
 {
     private const string Url = "https://blogkeyvault.vault.azure.net/";
 
-    public string GetSecret(string secret)
+    public static string GetSecret(string secret)
     {
         var client = new SecretClient(new Uri(Url), new DefaultAzureCredential());
         try

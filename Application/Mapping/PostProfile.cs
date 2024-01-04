@@ -9,10 +9,10 @@ public class PostProfile : Profile
 {
     public PostProfile()
     {
-        CreateMap<CreatePost.Command, CreatePostDTO>().ReverseMap();
-        CreateMap<CreatePostDTO, Post>();
-        CreateMap<CreatePostDTO, PostDTO>();
-        CreateMap<EditPostDTO, PostDTO>();
-        CreateMap<EditPostDTO, Post>();
+        CreateMap<CreatePost.Command, CreatePostDto>().ReverseMap();
+        CreateMap<CreatePostDto, Post>();
+        CreateMap<CreatePostDto, PostDto>();
+        CreateMap<EditPostDto, PostDto>();
+        CreateMap<EditPostDto, Post>();
     }
 }

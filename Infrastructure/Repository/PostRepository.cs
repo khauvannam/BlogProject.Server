@@ -33,12 +33,12 @@ public class PostRepository : IPostRepository
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<Post> CreatePost(CreatePostDTO createPostDto)
+    public async Task<Post> CreatePost(CreatePostDto createPostDto)
     {
         var userId =
             _httpContextAccessor.HttpContext?.User.FindFirstValue(claimType: "UserIdentity")
             ?? string.Empty;
-        var post = _mapper.Map<CreatePostDTO, Post>(createPostDto);
+        var post = _mapper.Map<CreatePostDto, Post>(createPostDto);
         if (createPostDto is { FileUpload: not null })
         {
             var filePath = await GenerateFilePath(createPostDto.FileUpload);
@@ -55,7 +55,7 @@ public class PostRepository : IPostRepository
     {
         var post = _context.Posts.FirstOrDefault(x => x.Id == id);
         if (post is null)
-            throw new Exception("Post not available");
+            throw new Exception("Posts not available");
         var fileName = Path.GetFileNameWithoutExtension(post.MainImage);
         await _fileService.DeleteAsync(fileName);
         _context.Posts.Remove(post);
@@ -73,18 +73,19 @@ public class PostRepository : IPostRepository
             ?? throw new Exception("Can not find any post");
     }
 
-    public async Task<Post> UpdatePost(EditPostDTO editPostDto)
+    public async Task<Post> UpdatePost(EditPostDto editPostDto)
     {
         var post = _context.Posts.FirstOrDefault(x => x.Id == editPostDto.Id);
+        if (post is null)
+            throw new Exception("Post not available");
         var fileName = Path.GetFileNameWithoutExtension(post.MainImage);
         post.LastModified = DateTime.Now;
         post.Title = editPostDto.Title;
         post.Content = editPostDto.Content;
-        if (fileName != editPostDto.FileUpload?.FileName)
+        if (fileName != editPostDto.FileUpload?.FileName && editPostDto.FileUpload is not null)
         {
             await _fileService.DeleteAsync(fileName);
-            var blobFile = await _fileService.UploadAsync(editPostDto.FileUpload);
-            var newFilePath = blobFile.Blob.Uri;
+            var newFilePath = await GenerateFilePath(editPostDto.FileUpload);
             post.MainImage = newFilePath;
         }
 

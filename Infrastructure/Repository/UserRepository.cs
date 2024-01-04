@@ -27,23 +27,25 @@ public class UserRepository : IUserRepository
         _signInManager = signInManager;
     }
 
-    public async Task Register(RegisterDTO model)
+    public async Task Register(RegisterDto model)
     {
-        var user = _mapper.Map<RegisterDTO, User>(model);
+        var user = _mapper.Map<RegisterDto, User>(model);
         var result = await _userManager.CreateAsync(user, model.Password);
         if (!result.Succeeded)
         {
-            throw new Exception();
+            throw new Exception(
+                $"Your username {user.UserName} or email {user.Email} have been used"
+            );
         }
         var claims = new List<Claim>
         {
             new Claim("UserIdentity", $"{user.Id}"),
-            new Claim("RoleIdentity", $"{model.SetRole}")
+            new Claim("RoleIdentity", $"{model.SetRole.ToString()}")
         };
         await _userManager.AddClaimsAsync(user, claims);
     }
 
-    public Task<string> Login(LoginDTO userDto)
+    public Task<string> Login(LoginDto userDto)
     {
         throw new NotImplementedException();
     }

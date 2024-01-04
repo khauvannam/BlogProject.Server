@@ -2,7 +2,6 @@
 using AutoMapper;
 using Domain.Abstraction;
 using Domain.Entity.Post;
-using Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 
@@ -10,7 +9,7 @@ namespace Application.Posts.Command;
 
 public class EditPost
 {
-    public class Command : PostDTO, IRequest<Post> { }
+    public class Command : PostDto, IRequest<Post> { }
 
     public class Handler : IRequestHandler<Command, Post>
     {
@@ -25,8 +24,8 @@ public class EditPost
 
         public async Task<Post> Handle(Command request, CancellationToken cancellationToken)
         {
-            var updatedPost = _mapper.Map<Command, EditPostDTO>(request);
-            var post = await _postRepo.UpdatePost(updatedPost);
+            var editedPost = _mapper.Map<Command, EditPostDto>(request);
+            var post = await _postRepo.UpdatePost(editedPost);
             return post;
         }
     }

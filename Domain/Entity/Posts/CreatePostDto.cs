@@ -2,4 +2,4 @@
 
 namespace Domain.Entity.Post;
 
-public class CreatePostDTO : PostDTO { }
+public class CreatePostDto : PostDto { }

@@ -2,7 +2,7 @@
 
 namespace Domain.Entity.Post;
 
-public class EditPostDTO : PostDTO
+public class EditPostDto : PostDto
 {
     public string Id { get; }
 }

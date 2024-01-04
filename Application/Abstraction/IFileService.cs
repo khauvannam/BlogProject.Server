@@ -1,4 +1,4 @@
-﻿using Domain.Models;
+﻿using Domain.Entity.Blob;
 using Microsoft.AspNetCore.Http;
 
 namespace Application.Abstraction;

@@ -2,7 +2,7 @@
 
 namespace Domain.Abstraction;
 
-public abstract class PostDTO
+public abstract class PostDto
 {
     public string? Title { get; set; }
     public string? Content { get; set; }

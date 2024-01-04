@@ -1,6 +1,4 @@
 ﻿using Domain.Entity.Post;
-using Domain.Entity.User;
-using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure;

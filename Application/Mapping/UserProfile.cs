@@ -8,7 +8,7 @@ public class UserProfile : Profile
 {
     public UserProfile()
     {
-        CreateMap<RegisterDTO, Register>().ReverseMap();
-        CreateMap<RegisterDTO, User>();
+        CreateMap<RegisterDto, RegisterUser.Command>().ReverseMap();
+        CreateMap<RegisterDto, User>();
     }
 }

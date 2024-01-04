@@ -1,6 +1,5 @@
 ﻿using Application.Abstraction;
 using Domain.Entity.Post;
-using Domain.Models;
 using MediatR;
 
 namespace Application.Posts.Queries;

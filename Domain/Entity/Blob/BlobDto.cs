@@ -1,4 +1,4 @@
-﻿namespace Domain.Models;
+﻿namespace Domain.Entity.Blob;
 
 public class BlobDto
 {

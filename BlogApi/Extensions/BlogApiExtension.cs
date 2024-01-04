@@ -4,10 +4,11 @@ using Application.Posts.Command;
 using Application.Users.Command;
 using Azure.Identity;
 using Blog_Api.Filter;
-using Blog_Api.Services;
 using Domain.Entity.User;
+using Domain.Enum;
 using Infrastructure;
 using Infrastructure.Repository;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -24,18 +25,18 @@ public static class BlogApiExtension
 
         builder.Services.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssemblies(typeof(CreatePost).Assembly);
+            cfg.RegisterServicesFromAssemblies(typeof(CreatePost.Command).Assembly);
         });
         builder.Services.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssemblies(typeof(Register).Assembly);
+            cfg.RegisterServicesFromAssemblies(typeof(RegisterUser.Command).Assembly);
         });
         builder.Services.AddAutoMapper(typeof(PostProfile), typeof(UserProfile));
     }
 
     public static void RegisterService(this WebApplicationBuilder builder)
     {
-        var userConnectionString = new KeyVault().GetSecret("blogsql");
+        var userConnectionString = SecretService.GetSecret($"{nameof(Secret.blogsql)}");
         builder.Services.AddDbContext<SocialDbContext>(
             opt => opt.UseSqlServer(userConnectionString)
         );
@@ -57,18 +58,21 @@ public static class BlogApiExtension
         service.Configure<IdentityOptions>(option =>
         {
             // Password setting
-            option.Password.RequireDigit = false;
-            option.Password.RequiredLength = 3;
-            option.Password.RequireLowercase = false;
-            option.Password.RequireNonAlphanumeric = false;
-            option.Password.RequireUppercase = false;
+            option.Password = new PasswordOptions()
+            {
+                RequireLowercase = false,
+                RequireUppercase = false,
+                RequireDigit = false,
+                RequireNonAlphanumeric = false
+            };
 
             // Lockout setting
             option.Lockout.AllowedForNewUsers = true;
 
-            // User setting
+            // Users setting
             option.User.AllowedUserNameCharacters =
                 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+            option.User.RequireUniqueEmail = true;
             option.User.RequireUniqueEmail = true;
         });
     }

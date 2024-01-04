@@ -8,7 +8,7 @@ namespace Application.Posts.Command;
 
 public static class CreatePost
 {
-    public class Command : PostDTO, IRequest<Post> { }
+    public class Command : PostDto, IRequest<Post> { }
 
     public class Handler : IRequestHandler<Command, Post>
     {
@@ -23,7 +23,7 @@ public static class CreatePost
 
         public async Task<Post> Handle(Command request, CancellationToken cancellationToken)
         {
-            var post = _mapper.Map<Command, CreatePostDTO>(request);
+            var post = _mapper.Map<Command, CreatePostDto>(request);
 
             return await _postRepo.CreatePost(post);
         }

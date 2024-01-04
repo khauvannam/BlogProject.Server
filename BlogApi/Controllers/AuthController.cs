@@ -20,9 +20,9 @@ public class AuthController : Controller
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterDTO registerDto)
+    public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
     {
-        var user = _mapper.Map<RegisterDTO, Register>(registerDto);
+        var user = _mapper.Map<RegisterDto, RegisterUser.Command>(registerDto);
         await _mediator.Send(user);
         return Ok($"Your account with username {user.UserName} is created successful");
     }

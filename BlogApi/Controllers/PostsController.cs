@@ -1,7 +1,6 @@
 ﻿using Application.Posts.Command;
 using Application.Posts.Queries;
 using AutoMapper;
-using Blog_Api.Services;
 using Domain.Abstraction;
 using Domain.Entity.Post;
 using MediatR;
@@ -23,9 +22,9 @@ public class PostsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreatePost([FromForm] PostDTO PostDto)
+    public async Task<IActionResult> CreatePost([FromForm] PostDto postDto)
     {
-        var createPost = _mapper.Map<PostDTO, CreatePost.Command>(PostDto);
+        var createPost = _mapper.Map<PostDto, CreatePost.Command>(postDto);
         var newPost = await _mediator.Send(createPost);
         return CreatedAtRoute(nameof(GetPostById), new { newPost.Id }, newPost);
     }
@@ -55,9 +54,10 @@ public class PostsController : ControllerBase
     }
 
     [HttpPut("{id:alpha}")]
-    public async Task<IActionResult> UpdatePostById(string id, [FromForm] PostDTO PostDto)
+    public async Task<IActionResult> UpdatePostById(string id, [FromForm] PostDto postDto)
     {
-        var key = new KeyVault().GetSecret("blogblobkey");
-        return Ok($"{key}");
+        var post = _mapper.Map<PostDto, EditPost.Command>(postDto);
+        var editedPost = await _mediator.Send(post);
+        return Ok(editedPost);
     }
 }
