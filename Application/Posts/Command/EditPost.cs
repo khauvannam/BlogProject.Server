@@ -2,6 +2,7 @@
 using AutoMapper;
 using Domain.Abstraction;
 using Domain.Entity.Post;
+using Domain.Entity.Posts;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 
@@ -9,7 +10,10 @@ namespace Application.Posts.Command;
 
 public class EditPost
 {
-    public class Command : PostDto, IRequest<Post> { }
+    public class Command : PostDto, IRequest<Post>
+    {
+        public string Id { get; set; }
+    }
 
     public class Handler : IRequestHandler<Command, Post>
     {

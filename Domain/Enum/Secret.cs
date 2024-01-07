@@ -3,5 +3,6 @@
 public enum Secret
 {
     blogsql,
-    blogblobkey
+    blogblobkey,
+    jwtsecret
 }

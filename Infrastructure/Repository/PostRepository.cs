@@ -2,6 +2,8 @@
 using Application.Abstraction;
 using AutoMapper;
 using Domain.Entity.Post;
+using Domain.Entity.Posts;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,10 +11,23 @@ namespace Infrastructure.Repository;
 
 public class PostRepository : IPostRepository
 {
-    private readonly SocialDbContext _context;
+    private readonly UserDbContext _context;
     private readonly IMapper _mapper;
     private readonly IFileService _fileService;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IHttpContextAccessor _contextAccessor;
+
+    public PostRepository(
+        UserDbContext context,
+        IMapper mapper,
+        IFileService fileService,
+        IHttpContextAccessor contextAccessor
+    )
+    {
+        _context = context;
+        _mapper = mapper;
+        _fileService = fileService;
+        _contextAccessor = contextAccessor;
+    }
 
     private async Task<string> GenerateFilePath(IFormFile file)
     {
@@ -20,24 +35,11 @@ public class PostRepository : IPostRepository
         return blobFile.Blob.Uri ?? string.Empty;
     }
 
-    public PostRepository(
-        SocialDbContext context,
-        IMapper mapper,
-        IFileService fileService,
-        IHttpContextAccessor httpContextAccessor
-    )
-    {
-        _context = context;
-        _mapper = mapper;
-        _fileService = fileService;
-        _httpContextAccessor = httpContextAccessor;
-    }
-
     public async Task<Post> CreatePost(CreatePostDto createPostDto)
     {
-        var userId =
-            _httpContextAccessor.HttpContext?.User.FindFirstValue(claimType: "UserIdentity")
-            ?? string.Empty;
+        var userId = _contextAccessor.HttpContext.User.FindFirstValue(
+            nameof(ClaimTypes.NameIdentifier)
+        );
         var post = _mapper.Map<CreatePostDto, Post>(createPostDto);
         if (createPostDto is { FileUpload: not null })
         {
@@ -53,9 +55,9 @@ public class PostRepository : IPostRepository
 
     public async Task DeletePost(string id)
     {
-        var post = _context.Posts.FirstOrDefault(x => x.Id == id);
-        if (post is null)
-            throw new Exception("Posts not available");
+        var post =
+            _context.Posts.FirstOrDefault(x => x.Id == id)
+            ?? throw new Exception("Posts not available");
         var fileName = Path.GetFileNameWithoutExtension(post.MainImage);
         await _fileService.DeleteAsync(fileName);
         _context.Posts.Remove(post);
@@ -64,7 +66,20 @@ public class PostRepository : IPostRepository
 
     public async Task<ICollection<Post>> GetAllPosts()
     {
-        return await _context.Posts.ToListAsync();
+        var userId = _contextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        return await _context.Posts
+            .Where(post => post.UserId == userId || post.Public)
+            .Select(
+                post =>
+                    new Post()
+                    {
+                        Title = post.Title,
+                        Content = post.Content,
+                        MainImage = post.MainImage,
+                        LastModified = post.LastModified
+                    }
+            )
+            .ToListAsync();
     }
 
     public async Task<Post> GetsPostById(string id)
@@ -75,13 +90,11 @@ public class PostRepository : IPostRepository
 
     public async Task<Post> UpdatePost(EditPostDto editPostDto)
     {
-        var post = _context.Posts.FirstOrDefault(x => x.Id == editPostDto.Id);
-        if (post is null)
-            throw new Exception("Post not available");
+        var post =
+            _context.Posts.FirstOrDefault(x => x.Id == editPostDto.Id)
+            ?? throw new Exception("Post not available");
         var fileName = Path.GetFileNameWithoutExtension(post.MainImage);
-        post.LastModified = DateTime.Now;
-        post.Title = editPostDto.Title;
-        post.Content = editPostDto.Content;
+        _mapper.Map(editPostDto, post);
         if (fileName != editPostDto.FileUpload?.FileName && editPostDto.FileUpload is not null)
         {
             await _fileService.DeleteAsync(fileName);

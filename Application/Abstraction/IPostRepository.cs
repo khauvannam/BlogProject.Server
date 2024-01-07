@@ -1,4 +1,5 @@
 ﻿using Domain.Entity.Post;
+using Domain.Entity.Posts;
 using Microsoft.AspNetCore.Http;
 
 namespace Application.Abstraction;

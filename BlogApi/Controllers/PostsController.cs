@@ -4,11 +4,13 @@ using AutoMapper;
 using Domain.Abstraction;
 using Domain.Entity.Post;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Blog_Api.Controllers;
 
 [Route("api/[controller]")]
+[Authorize]
 [ApiController]
 public class PostsController : ControllerBase
 {
@@ -21,7 +23,7 @@ public class PostsController : ControllerBase
         _mapper = mapper;
     }
 
-    [HttpPost]
+    [HttpPost($"{nameof(CreatePost)}")]
     public async Task<IActionResult> CreatePost([FromForm] PostDto postDto)
     {
         var createPost = _mapper.Map<PostDto, CreatePost.Command>(postDto);
@@ -29,7 +31,7 @@ public class PostsController : ControllerBase
         return CreatedAtRoute(nameof(GetPostById), new { newPost.Id }, newPost);
     }
 
-    [HttpGet("{id:guid}", Name = "GetPostById")]
+    [HttpGet($"{nameof(GetPostById)}/{{id:guid}}", Name = "GetPostById")]
     public async Task<IActionResult> GetPostById(string id)
     {
         var post = new GetPostById.Command { Id = id };
@@ -37,7 +39,7 @@ public class PostsController : ControllerBase
         return Ok(gotPost);
     }
 
-    [HttpGet]
+    [HttpGet($"/{nameof(GetAllPost)}")]
     public async Task<IActionResult> GetAllPost()
     {
         var allPost = new GetAllPosts.Command();
@@ -45,7 +47,7 @@ public class PostsController : ControllerBase
         return Ok(newAllPost);
     }
 
-    [HttpDelete("{id:alpha}")]
+    [HttpDelete($"{nameof(DeletePost)}/{{id:alpha}}")]
     public async Task<IActionResult> DeletePost(string id)
     {
         var post = new DeletePost.Command { Id = id };
@@ -53,10 +55,11 @@ public class PostsController : ControllerBase
         return NoContent();
     }
 
-    [HttpPut("{id:alpha}")]
+    [HttpPut($"{nameof(UpdatePostById)}/{{id:alpha}}")]
     public async Task<IActionResult> UpdatePostById(string id, [FromForm] PostDto postDto)
     {
         var post = _mapper.Map<PostDto, EditPost.Command>(postDto);
+        post.Id = id;
         var editedPost = await _mediator.Send(post);
         return Ok(editedPost);
     }

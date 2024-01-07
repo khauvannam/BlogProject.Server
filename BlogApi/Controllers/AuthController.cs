@@ -1,6 +1,8 @@
 ﻿using Application.Users.Command;
+using Application.Users.Queries;
 using AutoMapper;
 using Domain.Entity.User;
+using Domain.Entity.Users;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,10 +29,16 @@ public class AuthController : Controller
         return Ok($"Your account with username {user.UserName} is created successful");
     }
 
-    [HttpGet("login")]
-    public IActionResult Login()
+    [HttpPost("login")]
+    public async Task<IActionResult> Login(LoginDto loginDto)
     {
-        // Your login logic
-        return Ok("Login Successful");
+        var loginUser = _mapper.Map<LoginDto, LoginUser.Command>(loginDto);
+        var loginResponse = await _mediator.Send(loginUser);
+        if (!loginResponse.IsLoginSuccessful)
+        {
+            return Unauthorized(loginResponse.ErrorMessage);
+        }
+
+        return Ok(loginResponse);
     }
 }

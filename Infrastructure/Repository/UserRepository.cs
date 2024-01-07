@@ -1,8 +1,9 @@
 ﻿using System.Security.Claims;
 using Application.Abstraction;
 using AutoMapper;
-using Domain.Entity.Post;
+using Domain.Entity.Auth;
 using Domain.Entity.User;
+using Domain.Entity.Users;
 using Microsoft.AspNetCore.Identity;
 
 namespace Infrastructure.Repository;
@@ -30,6 +31,8 @@ public class UserRepository : IUserRepository
     public async Task Register(RegisterDto model)
     {
         var user = _mapper.Map<RegisterDto, User>(model);
+        user.SecurityStamp = Guid.NewGuid().ToString();
+        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
         var result = await _userManager.CreateAsync(user, model.Password);
         if (!result.Succeeded)
         {
@@ -39,14 +42,32 @@ public class UserRepository : IUserRepository
         }
         var claims = new List<Claim>
         {
-            new Claim("UserIdentity", $"{user.Id}"),
-            new Claim("RoleIdentity", $"{model.SetRole.ToString()}")
+            new(nameof(ClaimTypes.NameIdentifier), $"{user.Id}"),
+            new(nameof(ClaimTypes.Role), $"{model.SetRole.ToString()}"),
         };
         await _userManager.AddClaimsAsync(user, claims);
     }
 
-    public Task<string> Login(LoginDto userDto)
+    public async Task<LoginResponseDto> Login(LoginDto loginDto)
     {
-        throw new NotImplementedException();
+        var user = _context.Users.FirstOrDefault(e => e.Email == loginDto.Email);
+        if (user is null)
+            throw new Exception("The user is not valid");
+        var result = await _signInManager.PasswordSignInAsync(
+            user.UserName,
+            loginDto.Password,
+            true,
+            false
+        );
+        if (!result.Succeeded)
+        {
+            return new LoginResponseDto()
+            {
+                IsLoginSuccessful = false,
+                ErrorMessage = "Invalid Authentication"
+            };
+        }
+
+        return new LoginResponseDto();
     }
 }

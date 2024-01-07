@@ -14,10 +14,10 @@ public class FileService : IFileService
 {
     private readonly BlobContainerClient _fileContainer;
 
-    private readonly string _key = SecretService.GetSecret($"{nameof(Secret.blogblobkey)}");
+    private readonly string _key = SecretService.GetSecret(nameof(Secret.blogblobkey));
 
     private readonly ILogger<FileService> _logger;
-    private readonly string _storageAccount = "khauvannam";
+    private readonly string _storageAccount = "blogimage";
 
     public FileService(ILogger<FileService> logger)
     {

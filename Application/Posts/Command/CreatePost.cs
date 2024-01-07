@@ -2,6 +2,7 @@
 using AutoMapper;
 using Domain.Abstraction;
 using Domain.Entity.Post;
+using Domain.Entity.Posts;
 using MediatR;
 
 namespace Application.Posts.Command;

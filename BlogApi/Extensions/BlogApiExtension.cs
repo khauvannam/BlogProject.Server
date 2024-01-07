@@ -4,7 +4,8 @@ using Application.Posts.Command;
 using Application.Users.Command;
 using Azure.Identity;
 using Blog_Api.Filter;
-using Domain.Entity.User;
+using Blog_Api.Identity;
+using Domain.Entity.Users;
 using Domain.Enum;
 using Infrastructure;
 using Infrastructure.Repository;
@@ -19,9 +20,13 @@ public static class BlogApiExtension
 {
     public static void RegisterDependencyInjection(this WebApplicationBuilder builder)
     {
-        builder.Services.AddScoped<IPostRepository, PostRepository>();
-        builder.Services.AddTransient<IFileService, FileService>();
         builder.Services.AddScoped<IUserRepository, UserRepository>();
+        builder.Services.AddScoped<IPostRepository, PostRepository>();
+        builder.Services.AddScoped<JwtHandler>();
+        builder.Services.AddTransient<IFileService, FileService>();
+        builder.Services.AddSingleton<AuthService>();
+
+        builder.Services.AddHttpContextAccessor();
 
         builder.Services.AddMediatR(cfg =>
         {
@@ -37,43 +42,31 @@ public static class BlogApiExtension
     public static void RegisterService(this WebApplicationBuilder builder)
     {
         var userConnectionString = SecretService.GetSecret($"{nameof(Secret.blogsql)}");
-        builder.Services.AddDbContext<SocialDbContext>(
-            opt => opt.UseSqlServer(userConnectionString)
-        );
+
         builder.Services.AddDbContext<UserDbContext>(opt => opt.UseSqlServer(userConnectionString));
 
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        builder.Services.AddSwaggerGen(options => options.AddSwaggerAuth());
         builder.Services.AddCors();
     }
 
     public static void AddIdentityApi(this IServiceCollection service)
     {
-        service.AddHttpContextAccessor();
+        var jwtSecret = SecretService.GetSecret($"{nameof(Secret.jwtsecret)}");
         service
             .AddIdentity<User, IdentityRole>(
                 options => options.SignIn.RequireConfirmedAccount = false
             )
+            .AddSignInManager()
+            .AddDefaultTokenProviders()
             .AddEntityFrameworkStores<UserDbContext>();
-        service.Configure<IdentityOptions>(option =>
+
+        service
+            .AddAuthentication(options => options.ConfigureAuthOptions())
+            .AddJwtBearer(options => options.ConfigureBearerOption(jwtSecret));
+        service.Configure<IdentityOptions>(options =>
         {
-            // Password setting
-            option.Password = new PasswordOptions()
-            {
-                RequireLowercase = false,
-                RequireUppercase = false,
-                RequireDigit = false,
-                RequireNonAlphanumeric = false
-            };
-
-            // Lockout setting
-            option.Lockout.AllowedForNewUsers = true;
-
-            // Users setting
-            option.User.AllowedUserNameCharacters =
-                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-            option.User.RequireUniqueEmail = true;
-            option.User.RequireUniqueEmail = true;
+            options.AddIdentityOptions();
         });
     }
 
@@ -127,11 +120,10 @@ public static class BlogApiExtension
 
     public static void AddSwagger(this WebApplication app)
     {
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseSwagger();
-            app.UseSwaggerUI();
-        }
+        if (!app.Environment.IsDevelopment())
+            return;
+        app.UseSwagger();
+        app.UseSwaggerUI();
     }
 
     public static void ConfigurationServices(this WebApplicationBuilder builder)
