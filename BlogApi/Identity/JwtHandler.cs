@@ -1,14 +1,16 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Application.Abstraction;
+using Domain.Enum;
 using Infrastructure.Services;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Blog_Api.Identity;
 
-public class JwtHandler
+public class JwtHandler : IJwtHandler
 {
-    private readonly string _secret = SecretService.GetSecret(nameof(Domain.Enum.Secret.jwtsecret));
+    private readonly string _secret = SecretService.GetSecret(nameof(Secret.jwtsecret));
 
     private SigningCredentials GetSigningCredentials()
     {

@@ -22,9 +22,8 @@ public static class BlogApiExtension
     {
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<IPostRepository, PostRepository>();
-        builder.Services.AddScoped<JwtHandler>();
+        builder.Services.AddScoped<IJwtHandler, JwtHandler>();
         builder.Services.AddTransient<IFileService, FileService>();
-        builder.Services.AddSingleton<AuthService>();
 
         builder.Services.AddHttpContextAccessor();
 
@@ -46,13 +45,13 @@ public static class BlogApiExtension
         builder.Services.AddDbContext<UserDbContext>(opt => opt.UseSqlServer(userConnectionString));
 
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen(options => options.AddSwaggerAuth());
         builder.Services.AddCors();
     }
 
     public static void AddIdentityApi(this IServiceCollection service)
     {
-        var jwtSecret = SecretService.GetSecret($"{nameof(Secret.jwtsecret)}");
+        var jwtSecret = SecretService.GetSecret(nameof(Secret.jwtsecret));
+
         service
             .AddIdentity<User, IdentityRole>(
                 options => options.SignIn.RequireConfirmedAccount = false
@@ -68,6 +67,8 @@ public static class BlogApiExtension
         {
             options.AddIdentityOptions();
         });
+
+        service.AddSwaggerGen(options => options.AddSwaggerAuth());
     }
 
     #region exception handler

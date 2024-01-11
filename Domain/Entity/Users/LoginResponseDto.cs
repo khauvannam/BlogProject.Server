@@ -4,5 +4,6 @@ public record LoginResponseDto
 {
     public bool IsLoginSuccessful { get; set; } = true;
     public string? AccessToken { get; set; }
+    public string? RefreshToken { get; set; }
     public string? ErrorMessage { get; set; }
 }

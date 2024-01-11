@@ -11,11 +11,12 @@ builder.Services.AddIdentityApi();
 var app = builder.Build();
 
 // app.RegisterEndpointDefinitions();
+app.UseHttpsRedirection();
+app.AddSwagger();
+
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseHttpsRedirection();
 app.MapControllers();
-app.AddSwagger();
 
 //app.ExceptionHandler();
 

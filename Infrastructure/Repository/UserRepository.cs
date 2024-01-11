@@ -14,25 +14,27 @@ public class UserRepository : IUserRepository
     private readonly IMapper _mapper;
     private readonly UserManager<User> _userManager;
     private readonly SignInManager<User> _signInManager;
+    private readonly IJwtHandler _jwtHandler;
 
     public UserRepository(
         UserDbContext context,
         IMapper mapper,
         UserManager<User> userManager,
-        SignInManager<User> signInManager
+        SignInManager<User> signInManager,
+        IJwtHandler jwtHandler
     )
     {
         _context = context;
         _mapper = mapper;
         _userManager = userManager;
         _signInManager = signInManager;
+        _jwtHandler = jwtHandler;
     }
 
     public async Task Register(RegisterDto model)
     {
         var user = _mapper.Map<RegisterDto, User>(model);
         user.SecurityStamp = Guid.NewGuid().ToString();
-        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
         var result = await _userManager.CreateAsync(user, model.Password);
         if (!result.Succeeded)
         {
@@ -44,6 +46,7 @@ public class UserRepository : IUserRepository
         {
             new(nameof(ClaimTypes.NameIdentifier), $"{user.Id}"),
             new(nameof(ClaimTypes.Role), $"{model.SetRole.ToString()}"),
+            new(nameof(ClaimTypes.Name), $"{user.UserName}")
         };
         await _userManager.AddClaimsAsync(user, claims);
     }
@@ -51,8 +54,6 @@ public class UserRepository : IUserRepository
     public async Task<LoginResponseDto> Login(LoginDto loginDto)
     {
         var user = _context.Users.FirstOrDefault(e => e.Email == loginDto.Email);
-        if (user is null)
-            throw new Exception("The user is not valid");
         var result = await _signInManager.PasswordSignInAsync(
             user.UserName,
             loginDto.Password,
@@ -67,7 +68,9 @@ public class UserRepository : IUserRepository
                 ErrorMessage = "Invalid Authentication"
             };
         }
-
-        return new LoginResponseDto();
+        var claims = await _userManager.GetClaimsAsync(user);
+        var accessToken = _jwtHandler.GenerateAccessToken(claims);
+        var refreshToken = _jwtHandler.GenerateRefreshToken();
+        return new LoginResponseDto() { AccessToken = accessToken, RefreshToken = refreshToken };
     }
 }

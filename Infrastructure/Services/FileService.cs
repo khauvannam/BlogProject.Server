@@ -1,4 +1,5 @@
-﻿using Application.Abstraction;
+﻿using System.Security.Claims;
+using Application.Abstraction;
 using Azure;
 using Azure.Storage;
 using Azure.Storage.Blobs;
@@ -18,10 +19,12 @@ public class FileService : IFileService
 
     private readonly ILogger<FileService> _logger;
     private readonly string _storageAccount = "blogimage";
+    private readonly IHttpContextAccessor _contextAccessor;
 
-    public FileService(ILogger<FileService> logger)
+    public FileService(ILogger<FileService> logger, IHttpContextAccessor contextAccessor)
     {
         _logger = logger;
+        _contextAccessor = contextAccessor;
         var credential = new StorageSharedKeyCredential(_storageAccount, _key);
         var blobUri = $"https://{_storageAccount}.blob.core.windows.net";
         var blobServiceClient = new BlobServiceClient(new Uri(blobUri), credential);
@@ -77,10 +80,14 @@ public class FileService : IFileService
 
     public async Task<BlobResponseDto> UploadAsync(IFormFile? blob)
     {
+        var userName = _contextAccessor.HttpContext?.User.FindFirstValue(nameof(ClaimTypes.Name));
+        var fileName = $"{userName}_{DateTime.Now.ToShortTimeString()}";
         BlobResponseDto responseDto = new();
         try
         {
-            var client = _fileContainer.GetBlobClient($"{blob.FileName}");
+            var client = _fileContainer.GetBlobClient(
+                $"{userName}_{DateTime.Now.ToShortDateString()}"
+            );
             await using (var data = blob.OpenReadStream())
             {
                 await client.UploadAsync(data);

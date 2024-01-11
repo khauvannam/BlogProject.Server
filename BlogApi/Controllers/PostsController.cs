@@ -2,7 +2,6 @@
 using Application.Posts.Queries;
 using AutoMapper;
 using Domain.Abstraction;
-using Domain.Entity.Post;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace Blog_Api.Controllers;
 
 [Route("api/[controller]")]
-[Authorize]
 [ApiController]
 public class PostsController : ControllerBase
 {
@@ -23,7 +21,7 @@ public class PostsController : ControllerBase
         _mapper = mapper;
     }
 
-    [HttpPost($"{nameof(CreatePost)}")]
+    [HttpPost($"{nameof(CreatePost)}"), Authorize]
     public async Task<IActionResult> CreatePost([FromForm] PostDto postDto)
     {
         var createPost = _mapper.Map<PostDto, CreatePost.Command>(postDto);
@@ -31,7 +29,7 @@ public class PostsController : ControllerBase
         return CreatedAtRoute(nameof(GetPostById), new { newPost.Id }, newPost);
     }
 
-    [HttpGet($"{nameof(GetPostById)}/{{id:guid}}", Name = "GetPostById")]
+    [HttpGet("{id}", Name = nameof(GetPostById))]
     public async Task<IActionResult> GetPostById(string id)
     {
         var post = new GetPostById.Command { Id = id };
@@ -47,7 +45,7 @@ public class PostsController : ControllerBase
         return Ok(newAllPost);
     }
 
-    [HttpDelete($"{nameof(DeletePost)}/{{id:alpha}}")]
+    [HttpDelete($"{nameof(DeletePost)}/{{id}}")]
     public async Task<IActionResult> DeletePost(string id)
     {
         var post = new DeletePost.Command { Id = id };
@@ -55,7 +53,7 @@ public class PostsController : ControllerBase
         return NoContent();
     }
 
-    [HttpPut($"{nameof(UpdatePostById)}/{{id:alpha}}")]
+    [HttpPut($"{nameof(UpdatePostById)}/{{id}}")]
     public async Task<IActionResult> UpdatePostById(string id, [FromForm] PostDto postDto)
     {
         var post = _mapper.Map<PostDto, EditPost.Command>(postDto);

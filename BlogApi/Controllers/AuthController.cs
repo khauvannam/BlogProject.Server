@@ -30,7 +30,7 @@ public class AuthController : Controller
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginDto loginDto)
+    public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
     {
         var loginUser = _mapper.Map<LoginDto, LoginUser.Command>(loginDto);
         var loginResponse = await _mediator.Send(loginUser);

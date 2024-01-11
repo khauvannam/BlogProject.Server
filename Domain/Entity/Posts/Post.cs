@@ -23,5 +23,5 @@ public class Post
     public DateTime LastModified { get; set; } = DateTime.Now;
 
     [NotMapped]
-    public string? Slug { get; }
+    public string? Slug { get; set; }
 }

@@ -11,7 +11,13 @@ public class PostProfile : Profile
     public PostProfile()
     {
         CreateMap<CreatePost.Command, PostDto>().ReverseMap();
-        CreateMap<CreatePostDto, Post>();
+        CreateMap<CreatePostDto, Post>()
+            .AfterMap(
+                (source, des) =>
+                {
+                    des.Slug = source.Title?.Trim().Replace(" ", "-");
+                }
+            );
         CreateMap<CreatePost.Command, CreatePostDto>();
         CreateMap<EditPostDto, PostDto>();
         CreateMap<EditPostDto, Post>();

@@ -3,7 +3,6 @@ using Application.Abstraction;
 using AutoMapper;
 using Domain.Entity.Post;
 using Domain.Entity.Posts;
-using Infrastructure.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,7 +36,7 @@ public class PostRepository : IPostRepository
 
     public async Task<Post> CreatePost(CreatePostDto createPostDto)
     {
-        var userId = _contextAccessor.HttpContext.User.FindFirstValue(
+        var userId = _contextAccessor.HttpContext?.User.FindFirstValue(
             nameof(ClaimTypes.NameIdentifier)
         );
         var post = _mapper.Map<CreatePostDto, Post>(createPostDto);
@@ -66,7 +65,8 @@ public class PostRepository : IPostRepository
 
     public async Task<ICollection<Post>> GetAllPosts()
     {
-        var userId = _contextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = _contextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
         return await _context.Posts
             .Where(post => post.UserId == userId || post.Public)
             .Select(
