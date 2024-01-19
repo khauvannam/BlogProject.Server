@@ -73,19 +73,25 @@ public class PostRepository : IPostRepository
                 post =>
                     new Post()
                     {
+                        Id = post.Id,
                         Title = post.Title,
                         Content = post.Content,
                         MainImage = post.MainImage,
-                        LastModified = post.LastModified
+                        LastModified = post.LastModified,
+                        User = post.User,
                     }
             )
+            .Include(e => e.User)
             .ToListAsync();
     }
 
     public async Task<Post> GetsPostById(string id)
     {
-        return await _context.Posts.FirstOrDefaultAsync(x => x.Id == id)
-            ?? throw new Exception("Can not find any post");
+        return await _context.Posts
+                .Include(e => e.Comments)!
+                .ThenInclude(e => e.User)
+                .Include(e => e.User)
+                .FirstOrDefaultAsync(x => x.Id == id) ?? throw new Exception("Post not exits");
     }
 
     public async Task<Post> UpdatePost(EditPostDto editPostDto)
@@ -95,7 +101,7 @@ public class PostRepository : IPostRepository
             ?? throw new Exception("Post not available");
         var fileName = Path.GetFileNameWithoutExtension(post.MainImage);
         _mapper.Map(editPostDto, post);
-        if (fileName != editPostDto.FileUpload?.FileName && editPostDto.FileUpload is not null)
+        if (editPostDto is { FileUpload: not null })
         {
             await _fileService.DeleteAsync(fileName);
             var newFilePath = await GenerateFilePath(editPostDto.FileUpload);

@@ -33,9 +33,33 @@ public class JwtHandler : IJwtHandler
         return tokenString;
     }
 
-    public string GenerateRefreshToken()
+    public string? GenerateRefreshToken()
     {
         var token = Guid.NewGuid().ToString();
         return token;
+    }
+
+    public ClaimsPrincipal GetClaimsPrincipalFromExpiredToken(string token)
+    {
+        var tokenValidationParameters = new TokenValidationParameters()
+        {
+            ValidateAudience = false,
+            ValidateIssuer = false,
+            ValidateLifetime = false,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(nameof(Secret.jwtsecret))
+            )
+        };
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var principal = tokenHandler.ValidateToken(
+            token,
+            tokenValidationParameters,
+            out var securityToken
+        );
+        if (securityToken is null)
+            throw new SecurityTokenException("Invalid token");
+
+        return principal;
     }
 }

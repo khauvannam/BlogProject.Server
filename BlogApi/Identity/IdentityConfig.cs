@@ -1,11 +1,32 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using System.Security.Claims;
+using Domain.Enum;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 
 namespace Blog_Api.Identity;
 
 public static class IdentityConfig
 {
+    public static void ConfigureAuthorization(this AuthorizationOptions options)
+    {
+        options.AddPolicy(
+            "Users",
+            policy =>
+                policy.RequireClaim(
+                    nameof(ClaimTypes.Role),
+                    nameof(Role.BasicUser),
+                    nameof(Role.PremiumUser),
+                    nameof(Role.Admin)
+                )
+        );
+        options.AddPolicy(
+            "Admin",
+            policy => policy.RequireClaim(nameof(ClaimTypes.Role), nameof(Role.Admin))
+        );
+    }
+
     public static void ConfigureAuthOptions(this AuthenticationOptions options)
     {
         options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;

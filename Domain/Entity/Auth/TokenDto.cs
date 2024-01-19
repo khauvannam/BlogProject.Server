@@ -1,3 +1,3 @@
 ﻿namespace Domain.Entity.Auth;
 
-public record TokenDto();
+public record TokenDto(string AccessToken, string? RefreshToken);

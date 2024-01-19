@@ -1,4 +1,5 @@
-﻿using Domain.Entity.Comments;
+﻿using Domain.Entity.Auth;
+using Domain.Entity.Comments;
 using Domain.Entity.Posts;
 using Domain.Entity.Users;
 using Microsoft.AspNetCore.Identity;
@@ -14,10 +15,23 @@ public class UserDbContext : IdentityDbContext<User, IdentityRole, string>
 
     public DbSet<Post> Posts { get; set; } = null!;
     public DbSet<Comment> Comments { get; set; } = null!;
+    public DbSet<Token> Tokens { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        #region token table
+
+        modelBuilder.Entity<Token>().HasKey(e => e.RefreshToken);
+        modelBuilder
+            .Entity<Token>()
+            .HasOne(e => e.User)
+            .WithOne(e => e.Token)
+            .HasForeignKey<Token>(e => e.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        #endregion
 
         #region post table
 
@@ -42,6 +56,13 @@ public class UserDbContext : IdentityDbContext<User, IdentityRole, string>
         #endregion
 
         #region user table
+
+        modelBuilder
+            .Entity<User>()
+            .HasOne(e => e.Token)
+            .WithOne(e => e.User)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder
             .Entity<User>()

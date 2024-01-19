@@ -23,6 +23,8 @@ public static class BlogApiExtension
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<IPostRepository, PostRepository>();
         builder.Services.AddScoped<IJwtHandler, JwtHandler>();
+        builder.Services.AddScoped<ITokenRepository, TokenRepository>();
+        builder.Services.AddScoped<ICommentRepository, CommentRepository>();
         builder.Services.AddTransient<IFileService, FileService>();
 
         builder.Services.AddHttpContextAccessor();
@@ -35,7 +37,11 @@ public static class BlogApiExtension
         {
             cfg.RegisterServicesFromAssemblies(typeof(RegisterUser.Command).Assembly);
         });
-        builder.Services.AddAutoMapper(typeof(PostProfile), typeof(UserProfile));
+        builder.Services.AddAutoMapper(
+            typeof(PostProfile),
+            typeof(UserProfile),
+            typeof(CommentProfile)
+        );
     }
 
     public static void RegisterService(this WebApplicationBuilder builder)

@@ -10,7 +10,8 @@ public class PostProfile : Profile
 {
     public PostProfile()
     {
-        CreateMap<CreatePost.Command, PostDto>().ReverseMap();
+        CreateMap<PostDto, CreatePost.Command>();
+        CreateMap<CreatePost.Command, CreatePostDto>();
         CreateMap<CreatePostDto, Post>()
             .AfterMap(
                 (source, des) =>
@@ -18,8 +19,8 @@ public class PostProfile : Profile
                     des.Slug = source.Title?.Trim().Replace(" ", "-");
                 }
             );
-        CreateMap<CreatePost.Command, CreatePostDto>();
-        CreateMap<EditPostDto, PostDto>();
+        CreateMap<PostDto, EditPost.Command>();
+        CreateMap<EditPost.Command, EditPostDto>();
         CreateMap<EditPostDto, Post>();
     }
 }

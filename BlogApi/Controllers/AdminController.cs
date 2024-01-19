@@ -1,6 +1,8 @@
-﻿namespace Blog_Api.Controllers;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
-public class AdminController
-{
-    
-}
+namespace Blog_Api.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class AdminController : ControllerBase { }

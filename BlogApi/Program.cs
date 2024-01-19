@@ -10,6 +10,8 @@ builder.Services.AddIdentityApi();
 
 var app = builder.Build();
 
+app.MiddlewareHandler();
+
 // app.RegisterEndpointDefinitions();
 app.UseHttpsRedirection();
 app.AddSwagger();
@@ -20,5 +22,4 @@ app.MapControllers();
 
 //app.ExceptionHandler();
 
-app.MiddlewareHandler();
 app.Run();

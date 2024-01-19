@@ -21,7 +21,7 @@ public class PostsController : ControllerBase
         _mapper = mapper;
     }
 
-    [HttpPost($"{nameof(CreatePost)}"), Authorize]
+    [HttpPost($"{nameof(CreatePost)}"), Authorize(policy: "Users")]
     public async Task<IActionResult> CreatePost([FromForm] PostDto postDto)
     {
         var createPost = _mapper.Map<PostDto, CreatePost.Command>(postDto);
@@ -29,7 +29,7 @@ public class PostsController : ControllerBase
         return CreatedAtRoute(nameof(GetPostById), new { newPost.Id }, newPost);
     }
 
-    [HttpGet("{id}", Name = nameof(GetPostById))]
+    [HttpGet("{id}", Name = nameof(GetPostById)), AllowAnonymous]
     public async Task<IActionResult> GetPostById(string id)
     {
         var post = new GetPostById.Command { Id = id };
@@ -37,7 +37,7 @@ public class PostsController : ControllerBase
         return Ok(gotPost);
     }
 
-    [HttpGet($"/{nameof(GetAllPost)}")]
+    [HttpGet($"/{nameof(GetAllPost)}"), AllowAnonymous]
     public async Task<IActionResult> GetAllPost()
     {
         var allPost = new GetAllPosts.Command();
@@ -45,7 +45,7 @@ public class PostsController : ControllerBase
         return Ok(newAllPost);
     }
 
-    [HttpDelete($"{nameof(DeletePost)}/{{id}}")]
+    [HttpDelete($"{nameof(DeletePost)}/{{id}}"), Authorize(policy: "Users")]
     public async Task<IActionResult> DeletePost(string id)
     {
         var post = new DeletePost.Command { Id = id };
@@ -53,7 +53,7 @@ public class PostsController : ControllerBase
         return NoContent();
     }
 
-    [HttpPut($"{nameof(UpdatePostById)}/{{id}}")]
+    [HttpPut($"{nameof(UpdatePostById)}/{{id}}"), Authorize(policy: "Users")]
     public async Task<IActionResult> UpdatePostById(string id, [FromForm] PostDto postDto)
     {
         var post = _mapper.Map<PostDto, EditPost.Command>(postDto);

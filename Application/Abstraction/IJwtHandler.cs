@@ -5,5 +5,6 @@ namespace Application.Abstraction;
 public interface IJwtHandler
 {
     string GenerateAccessToken(IEnumerable<Claim> claims);
-    string GenerateRefreshToken();
+    string? GenerateRefreshToken();
+    ClaimsPrincipal GetClaimsPrincipalFromExpiredToken(string token);
 }
