@@ -1,4 +1,5 @@
 using Blog_Api.Extensions;
+using Infrastructure.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.ConfigurationServices();
@@ -19,6 +20,7 @@ app.AddSwagger();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<CommentHub>("/commentshub");
 
 //app.ExceptionHandler();
 

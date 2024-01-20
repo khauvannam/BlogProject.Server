@@ -1,6 +1,7 @@
 ﻿using Domain.Entity.Auth;
 using Domain.Entity.Comments;
 using Domain.Entity.Posts;
+using Domain.Entity.PostsTags;
 using Domain.Entity.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -16,6 +17,7 @@ public class UserDbContext : IdentityDbContext<User, IdentityRole, string>
     public DbSet<Post> Posts { get; set; } = null!;
     public DbSet<Comment> Comments { get; set; } = null!;
     public DbSet<Token> Tokens { get; set; } = null!;
+    public DbSet<PostTag> PostsTags { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -36,6 +38,13 @@ public class UserDbContext : IdentityDbContext<User, IdentityRole, string>
         #region post table
 
         modelBuilder.Entity<Post>().HasKey(e => e.Id);
+
+        modelBuilder
+            .Entity<Post>()
+            .HasMany(e => e.PostTags)
+            .WithOne(e => e.Post)
+            .HasForeignKey(e => e.PostId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder
             .Entity<Post>()
@@ -77,6 +86,7 @@ public class UserDbContext : IdentityDbContext<User, IdentityRole, string>
         #region comment table
 
         modelBuilder.Entity<Comment>().HasKey(e => e.CommentId);
+
         modelBuilder
             .Entity<Comment>()
             .HasOne(e => e.User)
@@ -90,6 +100,26 @@ public class UserDbContext : IdentityDbContext<User, IdentityRole, string>
             .WithMany(e => e.Comments)
             .HasForeignKey(e => e.PostId)
             .OnDelete(DeleteBehavior.Restrict);
+        #endregion
+
+        #region postTag table
+
+        modelBuilder.Entity<PostTag>().HasKey(e => new { e.PostId, e.TagId });
+
+        modelBuilder
+            .Entity<PostTag>()
+            .HasOne(e => e.Post)
+            .WithMany(e => e.PostTags)
+            .HasForeignKey(e => e.PostId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder
+            .Entity<PostTag>()
+            .HasOne(e => e.Tag)
+            .WithMany(e => e.PostTags)
+            .HasForeignKey(e => e.TagId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         #endregion
     }
 }

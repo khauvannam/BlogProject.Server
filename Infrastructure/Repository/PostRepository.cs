@@ -111,4 +111,9 @@ public class PostRepository : IPostRepository
         await _context.SaveChangesAsync();
         return post;
     }
+
+    public Task<ICollection<Post>> GetAllPostByTag(string tagName)
+    {
+        throw new NotImplementedException();
+    }
 }

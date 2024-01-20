@@ -1,4 +1,6 @@
-﻿namespace Domain.Entity.Comments;
+﻿using Domain.Abstraction;
+
+namespace Domain.Entity.Comments;
 
 public class EditCommentDto : CommentDto
 {

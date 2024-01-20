@@ -1,5 +1,7 @@
-﻿using Application.Comments.Command;
+﻿/*
+using Application.Comments.Command;
 using AutoMapper;
+using Domain.Abstraction;
 using Domain.Entity.Comments;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -7,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Blog_Api.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/[controller]/{id}")]
 [ApiController]
 public class CommentController : ControllerBase
 {
@@ -21,14 +23,15 @@ public class CommentController : ControllerBase
     }
 
     [HttpPost, Authorize(Policy = "Users")]
-    public async Task<IActionResult> CreateComment(CommentDto commentDto)
+    public async Task<IActionResult> CreateComment(CommentDto commentDto, string id)
     {
         var comment = _mapper.Map<CommentDto, CreateComment.Command>(commentDto);
+        comment.PostId = id;
         await _mediator.Send(comment);
         return Ok("Your comment is created");
     }
 
-    [HttpDelete("{id}"), Authorize(Policy = "Users")]
+    [HttpDelete, Authorize(Policy = "Users")]
     public async Task<IActionResult> DeleteComment(string id)
     {
         var comment = new DeleteComment.Command { Id = id };
@@ -36,7 +39,7 @@ public class CommentController : ControllerBase
         return NoContent();
     }
 
-    [HttpPut("{id}"), Authorize(Policy = "Users")]
+    [HttpPut, Authorize(Policy = "Users")]
     public async Task<IActionResult> EditComment(string id, CommentDto commentDto)
     {
         var comment = _mapper.Map<CommentDto, EditComment.Command>(commentDto);
@@ -45,3 +48,4 @@ public class CommentController : ControllerBase
         return Ok();
     }
 }
+*/
