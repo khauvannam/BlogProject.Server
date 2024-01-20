@@ -61,4 +61,12 @@ public class PostsController : ControllerBase
         var editedPost = await _mediator.Send(post);
         return Ok(editedPost);
     }
+
+    [HttpGet, AllowAnonymous]
+    public async Task<IActionResult> GetAllPostByTag(List<string> tagIds)
+    {
+        var posts = new GetAllPostByTag.Command { TagIds = tagIds };
+        var postsGetByTag = await _mediator.Send(posts);
+        return Ok(postsGetByTag);
+    }
 }

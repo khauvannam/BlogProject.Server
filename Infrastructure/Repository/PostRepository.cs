@@ -3,6 +3,7 @@ using Application.Abstraction;
 using AutoMapper;
 using Domain.Entity.Post;
 using Domain.Entity.Posts;
+using Domain.Entity.PostsTags;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -40,6 +41,16 @@ public class PostRepository : IPostRepository
             nameof(ClaimTypes.NameIdentifier)
         );
         var post = _mapper.Map<CreatePostDto, Post>(createPostDto);
+
+        foreach (
+            var postTag in createPostDto.TagId.Select(
+                tag => new PostTag { PostId = post.Id, TagId = tag }
+            )
+        )
+        {
+            _context.PostsTags.Add(postTag);
+        }
+
         if (createPostDto is { FileUpload: not null })
         {
             var filePath = await GenerateFilePath(createPostDto.FileUpload);
@@ -96,6 +107,7 @@ public class PostRepository : IPostRepository
 
     public async Task<Post> UpdatePost(EditPostDto editPostDto)
     {
+        //TODO change the tags when edit post
         var post =
             _context.Posts.FirstOrDefault(x => x.Id == editPostDto.Id)
             ?? throw new Exception("Post not available");
@@ -112,8 +124,10 @@ public class PostRepository : IPostRepository
         return post;
     }
 
-    public Task<ICollection<Post>> GetAllPostByTag(string tagName)
+    public async Task<ICollection<Post>> GetAllPostByTag(List<string> tagIds)
     {
-        throw new NotImplementedException();
+        return await _context.Posts
+            .Where(p => p.PostTags.Any(pt => tagIds.Contains(pt.TagId)))
+            .ToListAsync();
     }
 }
