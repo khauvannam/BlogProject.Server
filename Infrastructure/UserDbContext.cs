@@ -1,7 +1,10 @@
 ﻿using Domain.Entity.Auth;
 using Domain.Entity.Comments;
+using Domain.Entity.Favourite;
+using Domain.Entity.History;
 using Domain.Entity.Posts;
 using Domain.Entity.PostsTags;
+using Domain.Entity.Tags;
 using Domain.Entity.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -18,6 +21,10 @@ public class UserDbContext : IdentityDbContext<User, IdentityRole, string>
     public DbSet<Comment> Comments { get; set; } = null!;
     public DbSet<Token> Tokens { get; set; } = null!;
     public DbSet<PostTag> PostsTags { get; set; }
+    public DbSet<Tag> Tags { get; set; }
+
+    public DbSet<FavouritePosts> FavouritePostsList { get; set; }
+    public DbSet<HistoryPosts> HistoryPostsList { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -118,6 +125,59 @@ public class UserDbContext : IdentityDbContext<User, IdentityRole, string>
             .HasOne(e => e.Tag)
             .WithMany(e => e.PostTags)
             .HasForeignKey(e => e.TagId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        #endregion
+
+        #region tag table
+
+        modelBuilder.Entity<Tag>().HasKey(e => e.Id);
+        modelBuilder
+            .Entity<Tag>()
+            .HasMany(e => e.PostTags)
+            .WithOne(e => e.Tag)
+            .HasForeignKey(e => e.TagId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        #endregion
+
+        #region favourite post
+
+        modelBuilder.Entity<FavouritePosts>().HasKey(e => new { e.PostId, e.UserId });
+        modelBuilder
+            .Entity<FavouritePosts>()
+            .HasOne(e => e.Post)
+            .WithMany(e => e.FavouritePostsList)
+            .HasForeignKey(e => e.PostId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder
+            .Entity<FavouritePosts>()
+            .HasOne(e => e.User)
+            .WithMany(e => e.FavouritePostsList)
+            .HasForeignKey(e => e.UserId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Restrict);
+
+        #endregion
+
+        #region history post
+
+        modelBuilder.Entity<HistoryPosts>().HasKey(e => new { e.PostId, e.UserId });
+        modelBuilder
+            .Entity<HistoryPosts>()
+            .HasOne(e => e.Post)
+            .WithMany(e => e.HistoryPostsList)
+            .HasForeignKey(e => e.PostId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder
+            .Entity<HistoryPosts>()
+            .HasOne(e => e.User)
+            .WithMany(e => e.HistoryPostsList)
+            .HasForeignKey(e => e.UserId)
+            .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
 
         #endregion

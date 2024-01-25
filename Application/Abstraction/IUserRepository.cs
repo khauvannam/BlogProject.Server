@@ -9,4 +9,6 @@ public interface IUserRepository
 {
     public Task Register(RegisterDto user);
     public Task<LoginResponseDto> Login(LoginDto userDto);
+
+    //TODO ADD RESET PASSWORD, 2 STEP
 }

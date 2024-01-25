@@ -21,7 +21,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.MapHub<CommentHub>("/commentshub");
-
+app.UseMinimalEndpoint();
 //app.ExceptionHandler();
 
 app.Run();

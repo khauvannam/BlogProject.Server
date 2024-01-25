@@ -11,5 +11,5 @@ public interface IPostRepository
     Task<Post> CreatePost(CreatePostDto createPostDto);
     Task DeletePost(string id);
     Task<Post> UpdatePost(EditPostDto editPostDto);
-    Task<ICollection<Post>> GetAllPostByTag(List<string> tagIds);
+    Task<ICollection<Post>> GetAllPostByTags(List<string> tagIds);
 }

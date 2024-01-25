@@ -4,20 +4,25 @@ using MediatR;
 
 namespace Application.Posts.Queries;
 
-public sealed class GetAllPostByTag
+public sealed class GetAllPostByTags
 {
     public class Command : IRequest<ICollection<Post>>
     {
-        public List<string> TagIds { get; set; }
+        public List<string>? TagIds { get; set; }
     }
 
     public class Handler : IRequestHandler<Command, ICollection<Post>>
     {
         private readonly IPostRepository _repository;
 
+        public Handler(IPostRepository repository)
+        {
+            _repository = repository;
+        }
+
         public async Task<ICollection<Post>> Handle(Command request, CancellationToken cancellationToken)
         {
-            return await _repository.GetAllPostByTag(request.TagIds);
+            return await _repository.GetAllPostByTags(request.TagIds);
         }
     }
 }

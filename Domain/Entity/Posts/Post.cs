@@ -1,6 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using Domain.Entity.Comments;
+using Domain.Entity.Favourite;
+using Domain.Entity.History;
 using Domain.Entity.PostsTags;
 
 namespace Domain.Entity.Posts;
@@ -15,6 +16,8 @@ public class Post
     public Users.User User { get; set; } = null!;
     public List<Comment>? Comments { get; set; }
     public List<PostTag> PostTags { get; set; }
+    public List<FavouritePosts>? FavouritePostsList { get; set; }
+    public List<HistoryPosts>? HistoryPostsList { get; set; }
 
     public string MainImage { get; set; } =
         "https://preview.redd.it/dk7lkcyt0nk31.jpg?auto=webp&s=4c55a671807f629e6af23ab5b56618b8d6a37b0f";

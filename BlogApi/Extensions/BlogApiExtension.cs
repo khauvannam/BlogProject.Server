@@ -11,6 +11,7 @@ using Infrastructure;
 using Infrastructure.Repository;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -156,4 +157,21 @@ public static class BlogApiExtension
 */
 
     #endregion
+
+    public static void UseMinimalEndpoint(this WebApplication app)
+    {
+        app.MapGet("/favourite", (HttpContent context) => { });
+
+        app.MapGet("/history", (HttpContent context) => { });
+
+        app.MapGet(
+            "/{tagName}",
+            (string tagName, UserDbContext dbContext) =>
+            {
+                var tag = dbContext.Tags.FirstOrDefault(e => e.TagName == tagName);
+                var posts = dbContext.Posts.Where(e => e.PostTags.Any(pt => pt.TagId == tag!.Id)).ToList();
+                return Results.Ok(posts);
+            }
+        );
+    }
 }

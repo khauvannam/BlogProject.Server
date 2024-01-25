@@ -1,12 +1,22 @@
 ﻿using Application.Abstraction;
+using Domain.Entity.Tags;
 
 namespace Infrastructure.Repository;
 
 public class TagRepository : ITagRepository
 {
-    public Task CreateTag(string tagName)
+    private readonly UserDbContext _dbContext;
+
+    public TagRepository(UserDbContext dbContext)
     {
-        throw new NotImplementedException();
+        _dbContext = dbContext;
+    }
+
+    public async Task CreateTag(string tagName)
+    {
+        var tag = new Tag { TagName = tagName };
+        _dbContext.Tags.Add(tag);
+        await _dbContext.SaveChangesAsync();
     }
 
     public Task EditTag(string id)

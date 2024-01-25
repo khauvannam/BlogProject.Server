@@ -124,7 +124,7 @@ public class PostRepository : IPostRepository
         return post;
     }
 
-    public async Task<ICollection<Post>> GetAllPostByTag(List<string> tagIds)
+    public async Task<ICollection<Post>> GetAllPostByTags(List<string> tagIds)
     {
         return await _context.Posts
             .Where(p => p.PostTags.Any(pt => tagIds.Contains(pt.TagId)))
