@@ -62,7 +62,7 @@ public class PostsController : ControllerBase
         return Ok(editedPost);
     }
 
-    [HttpGet("/tags"), AllowAnonymous]
+    [HttpGet("/posts/tags"), AllowAnonymous]
     public async Task<IActionResult> GetAllPostByTags(List<string> tagIds)
     {
         var posts = new GetAllPostByTags.Command { TagIds = tagIds };

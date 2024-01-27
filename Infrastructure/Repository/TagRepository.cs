@@ -19,9 +19,11 @@ public class TagRepository : ITagRepository
         await _dbContext.SaveChangesAsync();
     }
 
-    public Task EditTag(string id)
+    public async Task EditTag(string id)
     {
-        throw new NotImplementedException();
+        var tag = _dbContext.Tags.FirstOrDefault(t => t.Id == id);
+        _dbContext.Tags.Remove(tag);
+        await _dbContext.SaveChangesAsync();
     }
 
     public Task DeleteTag(string id)

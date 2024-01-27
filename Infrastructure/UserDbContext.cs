@@ -48,6 +48,20 @@ public class UserDbContext : IdentityDbContext<User, IdentityRole, string>
 
         modelBuilder
             .Entity<Post>()
+            .HasMany(e => e.FavouritePostsList)
+            .WithOne(e => e.Post)
+            .HasForeignKey(e => e.PostId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder
+            .Entity<Post>()
+            .HasMany(e => e.HistoryPostsList)
+            .WithOne(e => e.Post)
+            .HasForeignKey(e => e.PostId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder
+            .Entity<Post>()
             .HasMany(e => e.PostTags)
             .WithOne(e => e.Post)
             .HasForeignKey(e => e.PostId)
@@ -86,6 +100,20 @@ public class UserDbContext : IdentityDbContext<User, IdentityRole, string>
             .WithOne(e => e.User)
             .HasForeignKey(e => e.UserId)
             .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder
+            .Entity<User>()
+            .HasMany(e => e.FavouritePostsList)
+            .WithOne(e => e.User)
+            .HasForeignKey(e => e.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder
+            .Entity<User>()
+            .HasMany(e => e.HistoryPostsList)
+            .WithOne(e => e.User)
+            .HasForeignKey(e => e.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
         #endregion
@@ -145,13 +173,15 @@ public class UserDbContext : IdentityDbContext<User, IdentityRole, string>
         #region favourite post
 
         modelBuilder.Entity<FavouritePosts>().HasKey(e => new { e.PostId, e.UserId });
+
         modelBuilder
             .Entity<FavouritePosts>()
             .HasOne(e => e.Post)
             .WithMany(e => e.FavouritePostsList)
             .HasForeignKey(e => e.PostId)
-            .IsRequired(false)
+            .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
+
         modelBuilder
             .Entity<FavouritePosts>()
             .HasOne(e => e.User)
@@ -165,13 +195,15 @@ public class UserDbContext : IdentityDbContext<User, IdentityRole, string>
         #region history post
 
         modelBuilder.Entity<HistoryPosts>().HasKey(e => new { e.PostId, e.UserId });
+
         modelBuilder
             .Entity<HistoryPosts>()
             .HasOne(e => e.Post)
             .WithMany(e => e.HistoryPostsList)
             .HasForeignKey(e => e.PostId)
-            .IsRequired(false)
+            .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
+
         modelBuilder
             .Entity<HistoryPosts>()
             .HasOne(e => e.User)

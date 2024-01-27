@@ -66,6 +66,36 @@ namespace Infrastructure.Migrations
                     b.ToTable("Comments");
                 });
 
+            modelBuilder.Entity("Domain.Entity.Favourite.FavouritePosts", b =>
+                {
+                    b.Property<string>("PostId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("PostId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("FavouritePostsList");
+                });
+
+            modelBuilder.Entity("Domain.Entity.History.HistoryPosts", b =>
+                {
+                    b.Property<string>("PostId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("PostId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("HistoryPostsList");
+                });
+
             modelBuilder.Entity("Domain.Entity.Posts.Post", b =>
                 {
                     b.Property<string>("Id")
@@ -127,7 +157,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tag");
+                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("Domain.Entity.Users.User", b =>
@@ -356,6 +386,44 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Domain.Entity.Favourite.FavouritePosts", b =>
+                {
+                    b.HasOne("Domain.Entity.Posts.Post", "Post")
+                        .WithMany("FavouritePostsList")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entity.Users.User", "User")
+                        .WithMany("FavouritePostsList")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entity.History.HistoryPosts", b =>
+                {
+                    b.HasOne("Domain.Entity.Posts.Post", "Post")
+                        .WithMany("HistoryPostsList")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entity.Users.User", "User")
+                        .WithMany("HistoryPostsList")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Domain.Entity.Posts.Post", b =>
                 {
                     b.HasOne("Domain.Entity.Users.User", "User")
@@ -378,7 +446,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Entity.Tags.Tag", "Tag")
                         .WithMany("PostTags")
                         .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Post");
@@ -441,6 +509,10 @@ namespace Infrastructure.Migrations
                 {
                     b.Navigation("Comments");
 
+                    b.Navigation("FavouritePostsList");
+
+                    b.Navigation("HistoryPostsList");
+
                     b.Navigation("PostTags");
                 });
 
@@ -452,6 +524,10 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entity.Users.User", b =>
                 {
                     b.Navigation("Comments");
+
+                    b.Navigation("FavouritePostsList");
+
+                    b.Navigation("HistoryPostsList");
 
                     b.Navigation("Posts");
 
