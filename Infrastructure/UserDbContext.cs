@@ -32,7 +32,7 @@ public class UserDbContext : IdentityDbContext<User, IdentityRole, string>
 
         #region token table
 
-        modelBuilder.Entity<Token>().HasKey(e => e.RefreshToken);
+        modelBuilder.Entity<Token>().HasKey(e => e.TokenId);
         modelBuilder
             .Entity<Token>()
             .HasOne(e => e.User)

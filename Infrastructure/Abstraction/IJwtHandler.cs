@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 
-namespace Application.Abstraction;
+namespace Blog_Api.Abstractions;
 
 public interface IJwtHandler
 {

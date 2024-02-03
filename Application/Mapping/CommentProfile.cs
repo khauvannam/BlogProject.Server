@@ -6,7 +6,7 @@ namespace Application.Mapping;
 
 public class CommentProfile : Profile
 {
-    protected CommentProfile()
+    public CommentProfile()
     {
         CreateMap<CommentDto, Comment>();
         CreateMap<EditCommentDto, Comment>();

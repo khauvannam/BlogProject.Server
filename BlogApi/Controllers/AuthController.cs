@@ -1,5 +1,4 @@
 ﻿using Application.Users.Command;
-using Application.Users.Queries;
 using AutoMapper;
 using Domain.Entity.User;
 using Domain.Entity.Users;
@@ -25,20 +24,19 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
     {
         var user = _mapper.Map<RegisterDto, RegisterUser.Command>(registerDto);
-        await _mediator.Send(user);
-        return Ok($"Your account with username {user.UserName} is created successful");
+        var result = await _mediator.Send(user);
+        return Ok($"Your account with username {result.Value} is created successful");
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
     {
         var loginUser = _mapper.Map<LoginDto, LoginUser.Command>(loginDto);
-        var loginResponse = await _mediator.Send(loginUser);
-        if (!loginResponse.IsLoginSuccessful)
+        var result = await _mediator.Send(loginUser);
+        if (result.IsFailure)
         {
-            return Unauthorized(loginResponse.ErrorMessage);
+            return Unauthorized(result.Errors);
         }
-
-        return Ok(loginResponse);
+        return Ok(result.Value);
     }
 }

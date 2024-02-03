@@ -3,6 +3,7 @@ using Domain.Enum;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 
 namespace Blog_Api.Identity;
@@ -32,6 +33,13 @@ public static class IdentityConfig
         options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
         options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    }
+
+    public static void ConfigureCors(this CorsOptions options)
+    {
+        options.AddDefaultPolicy(
+            builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()
+        );
     }
 
     public static void AddIdentityOptions(this IdentityOptions options)

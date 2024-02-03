@@ -8,7 +8,7 @@ namespace Blog_Api.Controllers;
 
 [Route(("/[controller]"))]
 [ApiController]
-[Authorize(Policy = "Admin")]
+[Authorize(policy: "Admin")]
 public class TagController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -43,9 +43,9 @@ public class TagController : ControllerBase
     }
 
     [HttpPut("{tagId}")]
-    public async Task<IActionResult> EditTag(string tagId)
+    public async Task<IActionResult> EditTag(string tagId, string tagName)
     {
-        var tag = new EditTag.Command { TagId = tagId };
+        var tag = new EditTag.Command { TagId = tagId, TagName = tagName };
         await _mediator.Send(tag);
         return Ok();
     }

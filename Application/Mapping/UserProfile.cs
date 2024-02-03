@@ -1,5 +1,4 @@
 ﻿using Application.Users.Command;
-using Application.Users.Queries;
 using AutoMapper;
 using Domain.Entity.User;
 using Domain.Entity.Users;

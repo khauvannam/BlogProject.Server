@@ -34,7 +34,7 @@ public class ApiEndpointFilter : IEndpointFilter
     {
         var detail = new
         {
-            Title = "An error occur while processing your progress",
+            Title = "An errors occur while processing your progress",
             Type = exception.GetType().ToString(),
             Status = StatusCodes.Status500InternalServerError
         };

@@ -1,4 +1,5 @@
-﻿using Domain.Entity.Tags;
+﻿using Application.Abstraction;
+using Domain.Entity.Tags;
 using MediatR;
 
 namespace Application.Tags.Queries;
@@ -9,9 +10,19 @@ public class GetAllTags
 
     public class Handler : IRequestHandler<Command, ICollection<Tag>>
     {
-        public Task<ICollection<Tag>> Handle(Command request, CancellationToken cancellationToken)
+        private readonly ITagRepository _repository;
+
+        public Handler(ITagRepository repository)
         {
-            throw new NotImplementedException();
+            _repository = repository;
+        }
+
+        public async Task<ICollection<Tag>> Handle(
+            Command request,
+            CancellationToken cancellationToken
+        )
+        {
+            return await _repository.GetAllTag();
         }
     }
 }

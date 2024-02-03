@@ -1,7 +1,7 @@
 ﻿using Domain.Entity.Blob;
 using Microsoft.AspNetCore.Http;
 
-namespace Application.Abstraction;
+namespace Infrastructure.Abstraction;
 
 public interface IFileService
 {

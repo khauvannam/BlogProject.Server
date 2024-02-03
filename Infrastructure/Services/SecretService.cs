@@ -18,7 +18,7 @@ public static class SecretService
         }
         catch (Exception ex)
         {
-            throw new Exception($"Error retrieving secret: {ex.Message}");
+            throw new Exception($"ErrorsHandler retrieving secret: {ex.Message}");
         }
     }
 }

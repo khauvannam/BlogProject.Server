@@ -1,5 +1,6 @@
 ﻿using Application.Abstraction;
 using Domain.Entity.Tags;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repository;
 
@@ -19,20 +20,25 @@ public class TagRepository : ITagRepository
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task EditTag(string id)
+    public async Task EditTag(string id, string tagName)
+    {
+        var tag = _dbContext.Tags.FirstOrDefault(t => t.Id == id);
+        if (tag is null)
+            throw new Exception("Can not find your tag id");
+        tag.TagName = tagName;
+        await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task DeleteTag(string id)
     {
         var tag = _dbContext.Tags.FirstOrDefault(t => t.Id == id);
         _dbContext.Tags.Remove(tag);
         await _dbContext.SaveChangesAsync();
     }
 
-    public Task DeleteTag(string id)
+    public async Task<ICollection<Tag>> GetAllTag()
     {
-        throw new NotImplementedException();
-    }
-
-    public Task GetAllTag()
-    {
-        throw new NotImplementedException();
+        var tags = await _dbContext.Tags.ToListAsync();
+        return tags;
     }
 }

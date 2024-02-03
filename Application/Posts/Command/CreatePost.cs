@@ -1,4 +1,5 @@
 ﻿using Application.Abstraction;
+using Application.Error;
 using AutoMapper;
 using Domain.Abstraction;
 using Domain.Entity.Post;
@@ -9,9 +10,9 @@ namespace Application.Posts.Command;
 
 public static class CreatePost
 {
-    public class Command : PostDto, IRequest<Post> { }
+    public class Command : PostDto, IRequest<Result<Post>> { }
 
-    public class Handler : IRequestHandler<Command, Post>
+    public class Handler : IRequestHandler<Command, Result<Post>>
     {
         private readonly IPostRepository _postRepo;
         private readonly IMapper _mapper;
@@ -22,11 +23,12 @@ public static class CreatePost
             _mapper = mapper;
         }
 
-        public async Task<Post> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Result<Post>> Handle(Command request, CancellationToken cancellationToken)
         {
             var post = _mapper.Map<Command, CreatePostDto>(request);
 
-            return await _postRepo.CreatePost(post);
+            var result = await _postRepo.CreatePost(post);
+            return result.IsFailure ? result.Errors : result;
         }
     }
 }

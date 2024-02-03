@@ -1,9 +1,12 @@
 ﻿using System.Security.Claims;
 using Application.Abstraction;
+using Application.Error;
 using AutoMapper;
+using Domain.Entity.ErrorsHandler;
 using Domain.Entity.Post;
 using Domain.Entity.Posts;
 using Domain.Entity.PostsTags;
+using Infrastructure.Abstraction;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -35,11 +38,15 @@ public class PostRepository : IPostRepository
         return blobFile.Blob.Uri ?? string.Empty;
     }
 
-    public async Task<Post> CreatePost(CreatePostDto createPostDto)
+    public async Task<Result<Post>> CreatePost(CreatePostDto createPostDto)
     {
         var userId = _contextAccessor.HttpContext?.User.FindFirstValue(
             nameof(ClaimTypes.NameIdentifier)
         );
+        if (userId is null)
+        {
+            return UserErrors.NotFound;
+        }
         var post = _mapper.Map<CreatePostDto, Post>(createPostDto);
 
         foreach (
@@ -63,23 +70,28 @@ public class PostRepository : IPostRepository
         return post;
     }
 
-    public async Task DeletePost(string id)
+    public async Task<Result<string>> DeletePost(string id)
     {
-        var post =
-            _context.Posts.FirstOrDefault(x => x.Id == id)
-            ?? throw new Exception("Posts not available");
+        var post = _context.Posts.FirstOrDefault(x => x.Id == id);
+        if (post is null)
+            return PostErrors.Nullable;
         var fileName = Path.GetFileNameWithoutExtension(post.MainImage);
         await _fileService.DeleteAsync(fileName);
         _context.Posts.Remove(post);
         await _context.SaveChangesAsync();
+        return post.Id;
     }
 
-    public async Task<ICollection<Post>> GetAllPosts()
+    public async Task<Result<ICollection<Post>>> GetAllPosts()
     {
         var userId = _contextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        return await _context.Posts
+        if (userId is null)
+        {
+            return UserErrors.NotFound;
+        }
+        var posts = await _context.Posts
             .Where(post => post.UserId == userId || post.Public)
+            .Include(p => p.User)
             .Select(
                 post =>
                     new Post()
@@ -94,25 +106,32 @@ public class PostRepository : IPostRepository
             )
             .Include(e => e.User)
             .ToListAsync();
+        return posts;
     }
 
-    public async Task<Post> GetsPostById(string id)
+    public async Task<Result<Post>> GetsPostById(string id)
     {
-        return await _context.Posts
-                .Include(e => e.Comments)!
-                .ThenInclude(e => e.User)
-                .Include(e => e.User)
-                .FirstOrDefaultAsync(x => x.Id == id) ?? throw new Exception("Post not exits");
+        var post = await _context.Posts
+            .Include(e => e.Comments)!
+            .ThenInclude(e => e.User)
+            .Include(e => e.User)
+            .FirstOrDefaultAsync(x => x.Id == id);
+        if (post is null)
+            return PostErrors.Nullable;
+        return post;
     }
 
-    public async Task<Post> UpdatePost(EditPostDto editPostDto)
+    public async Task<Result<Post>> EditPost(EditPostDto editPostDto)
     {
         //TODO change the tags when edit post
-        var post =
-            _context.Posts.FirstOrDefault(x => x.Id == editPostDto.Id)
-            ?? throw new Exception("Post not available");
+        var post = _context.Posts.FirstOrDefault(x => x.Id == editPostDto.Id);
+        if (post is null)
+        {
+            return PostErrors.Nullable;
+        }
         var fileName = Path.GetFileNameWithoutExtension(post.MainImage);
         _mapper.Map(editPostDto, post);
+
         if (editPostDto is { FileUpload: not null })
         {
             await _fileService.DeleteAsync(fileName);
@@ -124,10 +143,16 @@ public class PostRepository : IPostRepository
         return post;
     }
 
-    public async Task<ICollection<Post>> GetAllPostByTags(List<string> tagIds)
+    public async Task<Result<ICollection<Post>>> GetAllPostByTags(List<string>? tags)
     {
-        return await _context.Posts
-            .Where(p => p.PostTags.Any(pt => tagIds.Contains(pt.TagId)))
+        if (tags is null)
+        {
+            return TagErrors.Nullable;
+        }
+        var posts = await _context.Posts
+            .Where(p => p.PostTags.Any(pt => tags.Contains(pt.TagId)))
             .ToListAsync();
+
+        return posts;
     }
 }

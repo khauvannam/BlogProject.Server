@@ -1,15 +1,15 @@
-﻿using Domain.Entity.Post;
+﻿using Application.Error;
+using Domain.Entity.Post;
 using Domain.Entity.Posts;
-using Microsoft.AspNetCore.Http;
 
 namespace Application.Abstraction;
 
 public interface IPostRepository
 {
-    Task<ICollection<Post>> GetAllPosts();
-    Task<Post> GetsPostById(string id);
-    Task<Post> CreatePost(CreatePostDto createPostDto);
-    Task DeletePost(string id);
-    Task<Post> UpdatePost(EditPostDto editPostDto);
-    Task<ICollection<Post>> GetAllPostByTags(List<string> tagIds);
+    Task<Result<ICollection<Post>>> GetAllPosts();
+    Task<Result<Post>> GetsPostById(string id);
+    Task<Result<Post>> CreatePost(CreatePostDto createPostDto);
+    Task<Result<string>> DeletePost(string id);
+    Task<Result<Post>> EditPost(EditPostDto editPostDto);
+    Task<Result<ICollection<Post>>> GetAllPostByTags(List<string>? tags);
 }

@@ -1,21 +1,21 @@
 ﻿using Application.Abstraction;
+using Application.Error;
 using AutoMapper;
 using Domain.Abstraction;
 using Domain.Entity.Post;
 using Domain.Entity.Posts;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 
 namespace Application.Posts.Command;
 
 public class EditPost
 {
-    public class Command : PostDto, IRequest<Post>
+    public class Command : PostDto, IRequest<Result<Post>>
     {
         public string Id { get; set; }
     }
 
-    public class Handler : IRequestHandler<Command, Post>
+    public class Handler : IRequestHandler<Command, Result<Post>>
     {
         private readonly IPostRepository _postRepo;
         private readonly IMapper _mapper;
@@ -26,11 +26,11 @@ public class EditPost
             _mapper = mapper;
         }
 
-        public async Task<Post> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Result<Post>> Handle(Command request, CancellationToken cancellationToken)
         {
-            var editedPost = _mapper.Map<Command, EditPostDto>(request);
-            var post = await _postRepo.UpdatePost(editedPost);
-            return post;
+            var post = _mapper.Map<Command, EditPostDto>(request);
+            var result = await _postRepo.EditPost(post);
+            return result.IsFailure ? result.Errors : result;
         }
     }
 }

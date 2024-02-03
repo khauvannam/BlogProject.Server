@@ -1,7 +1,10 @@
 ﻿using System.Security.Claims;
 using Application.Abstraction;
+using Application.Error;
 using AutoMapper;
+using Blog_Api.Abstractions;
 using Domain.Entity.Auth;
+using Domain.Entity.ErrorsHandler;
 using Domain.Entity.User;
 using Domain.Entity.Users;
 using Microsoft.AspNetCore.Http;
@@ -16,15 +19,13 @@ public class UserRepository : IUserRepository
     private readonly UserManager<User> _userManager;
     private readonly SignInManager<User> _signInManager;
     private readonly IJwtHandler _jwtHandler;
-    private readonly IHttpContextAccessor _contextAccessor;
 
     public UserRepository(
         UserDbContext context,
         IMapper mapper,
         UserManager<User> userManager,
         SignInManager<User> signInManager,
-        IJwtHandler jwtHandler,
-        IHttpContextAccessor contextAccessor
+        IJwtHandler jwtHandler
     )
     {
         _context = context;
@@ -32,19 +33,16 @@ public class UserRepository : IUserRepository
         _userManager = userManager;
         _signInManager = signInManager;
         _jwtHandler = jwtHandler;
-        _contextAccessor = contextAccessor;
     }
 
-    public async Task Register(RegisterDto model)
+    public async Task<Result<string>> Register(RegisterDto model)
     {
         var user = _mapper.Map<RegisterDto, User>(model);
         user.SecurityStamp = Guid.NewGuid().ToString();
         var result = await _userManager.CreateAsync(user, model.Password);
         if (!result.Succeeded)
         {
-            throw new Exception(
-                $"Your username {user.UserName} or email {user.Email} have been used"
-            );
+            return UserErrors.Duplicate;
         }
         var claims = new List<Claim>
         {
@@ -53,26 +51,25 @@ public class UserRepository : IUserRepository
             new(nameof(ClaimTypes.Name), $"{user.UserName}")
         };
         await _userManager.AddClaimsAsync(user, claims);
+        return user.UserName!;
     }
 
-    public async Task<LoginResponseDto> Login(LoginDto loginDto)
+    public async Task<Result<LoginResponseDto>> Login(LoginDto loginDto)
     {
         var user = _context.Users.FirstOrDefault(e => e.Email == loginDto.Email);
         if (user is null)
-            throw new Exception("The user is not exists");
+        {
+            return UserErrors.NotFound;
+        }
         var result = await _signInManager.PasswordSignInAsync(
-            user.UserName,
+            user.UserName!,
             loginDto.Password,
             true,
             false
         );
         if (!result.Succeeded)
         {
-            return new LoginResponseDto()
-            {
-                IsLoginSuccessful = false,
-                ErrorMessage = "Invalid Authentication"
-            };
+            return UserErrors.Unauthenticated;
         }
 
         var claims = await _userManager.GetClaimsAsync(user);
@@ -80,7 +77,7 @@ public class UserRepository : IUserRepository
         var refreshToken = _jwtHandler.GenerateRefreshToken();
         await SaveTokenToDb(user.Id, refreshToken);
 
-        return new LoginResponseDto() { AccessToken = accessToken, RefreshToken = refreshToken };
+        return new LoginResponseDto { AccessToken = accessToken, RefreshToken = refreshToken };
     }
 
     private async Task SaveTokenToDb(string userId, string? token)

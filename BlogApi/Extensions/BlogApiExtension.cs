@@ -4,11 +4,13 @@ using Application.Mapping;
 using Application.Posts.Command;
 using Application.Users.Command;
 using Azure.Identity;
+using Blog_Api.Abstractions;
 using Blog_Api.Filter;
 using Blog_Api.Identity;
 using Domain.Entity.Users;
 using Domain.Enum;
 using Infrastructure;
+using Infrastructure.Abstraction;
 using Infrastructure.Repository;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Diagnostics;
@@ -53,7 +55,6 @@ public static class BlogApiExtension
         builder.Services.AddDbContext<UserDbContext>(opt => opt.UseSqlServer(userConnectionString));
 
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddCors();
     }
 
     public static void AddIdentityApi(this IServiceCollection service)
@@ -71,11 +72,14 @@ public static class BlogApiExtension
         service
             .AddAuthentication(options => options.ConfigureAuthOptions())
             .AddJwtBearer(options => options.ConfigureBearerOption(jwtSecret));
+
+        service.AddAuthorization(options => options.ConfigureAuthorization());
+
         service.Configure<IdentityOptions>(options =>
         {
             options.AddIdentityOptions();
         });
-
+        service.AddCors(opt => opt.ConfigureCors());
         service.AddSwaggerGen(options => options.AddSwaggerAuth());
     }
 

@@ -6,6 +6,7 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Domain.Entity.Blob;
 using Domain.Enum;
+using Infrastructure.Abstraction;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 

@@ -8,5 +8,5 @@ public class PostDto
     public string? Content { get; set; }
     public bool Public { get; set; } = false;
     public IFormFile? FileUpload { get; init; }
-    public List<string> TagId { get; set; }
+    public List<string>? TagId { get; init; }
 }
