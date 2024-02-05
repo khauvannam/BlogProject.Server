@@ -12,21 +12,14 @@ public sealed class GetAllPostByTags
         public List<string>? ListTags { get; init; }
     }
 
-    public class Handler : IRequestHandler<Command, Result<ICollection<Post>>>
+    public class Handler(IPostRepository repository) : IRequestHandler<Command, Result<ICollection<Post>>>
     {
-        private readonly IPostRepository _repository;
-
-        public Handler(IPostRepository repository)
-        {
-            _repository = repository;
-        }
-
         public async Task<Result<ICollection<Post>>> Handle(
             Command request,
             CancellationToken cancellationToken
         )
         {
-            var result = await _repository.GetAllPostByTags(request.ListTags);
+            var result = await repository.GetAllPostByTags(request.ListTags);
             return result;
         }
     }

@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using Application.Abstraction;
 using Azure;
 using Azure.Storage;
 using Azure.Storage.Blobs;
@@ -34,7 +33,7 @@ public class FileService : IFileService
 
     public async Task<List<BlobDto>> ListAsync()
     {
-        List<BlobDto> files = new();
+        List<BlobDto> files = [];
         await foreach (var file in _fileContainer.GetBlobsAsync())
         {
             var uri = _fileContainer.Uri.ToString();
@@ -62,7 +61,7 @@ public class FileService : IFileService
             var client = _fileContainer.GetBlobClient(blobFilename);
             await client.DeleteAsync();
         }
-        catch (RequestFailedException ex)
+        catch
         {
             _logger.LogError($"File {blobFilename} not found");
             return new BlobResponseDto
@@ -89,7 +88,7 @@ public class FileService : IFileService
             var client = _fileContainer.GetBlobClient(
                 $"{userName}_{DateTime.Now.ToShortDateString()}"
             );
-            await using (var data = blob.OpenReadStream())
+            await using (var data = blob!.OpenReadStream())
             {
                 await client.UploadAsync(data);
             }
@@ -102,10 +101,10 @@ public class FileService : IFileService
         catch (RequestFailedException ex) when (ex.ErrorCode == BlobErrorCode.BlobAlreadyExists)
         {
             _logger.LogError(
-                $"File with name {blob.FileName} already exists in container. Set another name to store the file in the container: '{_storageAccount}.'"
+                $"File with name {blob?.FileName} already exists in container. Set another name to store the file in the container: '{_storageAccount}.'"
             );
             responseDto.Status =
-                $"File with name {blob.FileName} already exists. Please use another name to store your file.";
+                $"File with name {blob?.FileName} already exists. Please use another name to store your file.";
             responseDto.Error = true;
             return responseDto;
         }

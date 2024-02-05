@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using Application.Abstraction;
+﻿using Application.Abstraction;
 using Application.Mapping;
 using Application.Posts.Command;
 using Application.Users.Command;
@@ -29,7 +28,7 @@ public static class BlogApiExtension
         builder.Services.AddScoped<ITokenRepository, TokenRepository>();
         builder.Services.AddTransient<IFileService, FileService>();
         builder.Services.AddScoped<ITagRepository, TagRepository>();
-
+        builder.Services.AddScoped<IUserServiceRepository, UserServiceRepository>();
         builder.Services.AddHttpContextAccessor();
 
         builder.Services.AddMediatR(cfg =>
@@ -135,6 +134,8 @@ public static class BlogApiExtension
     {
         if (!app.Environment.IsDevelopment())
             return;
+
+        app.UseDeveloperExceptionPage();
         app.UseSwagger();
         app.UseSwaggerUI();
     }
@@ -162,53 +163,4 @@ public static class BlogApiExtension
 */
 
     #endregion
-
-    public static void UseMinimalEndpoint(this WebApplication app)
-    {
-        app.MapGet(
-            "/favourite",
-            async (HttpContext context, UserDbContext dbContext) =>
-            {
-                var userId = context.User.FindFirstValue(nameof(ClaimTypes.NameIdentifier));
-                var favouritePost = await dbContext.Posts
-                    .Include(p => p.FavouritePostsList)
-                    .Where(
-                        p =>
-                            p.FavouritePostsList != null
-                            && p.FavouritePostsList.Any(fp => fp.UserId == userId)
-                    )
-                    .ToListAsync();
-                return Results.Ok(favouritePost);
-            }
-        );
-
-        app.MapGet(
-            "/history",
-            async (HttpContext context, UserDbContext dbContext) =>
-            {
-                var userId = context.User.FindFirstValue(nameof(ClaimTypes.NameIdentifier));
-                var historyPost = await dbContext.Posts
-                    .Include(p => p.FavouritePostsList)
-                    .Where(
-                        p =>
-                            p.FavouritePostsList != null
-                            && p.FavouritePostsList.Any(fp => fp.UserId == userId)
-                    )
-                    .ToListAsync();
-                return Results.Ok(historyPost);
-            }
-        );
-
-        app.MapGet(
-            "/tag/{tagName}",
-            (string tagName, UserDbContext dbContext) =>
-            {
-                var tag = dbContext.Tags.FirstOrDefault(e => e.TagName == tagName);
-                var posts = dbContext.Posts
-                    .Where(e => e.PostTags.Any(pt => pt.TagId == tag!.Id))
-                    .ToList();
-                return Results.Ok(posts);
-            }
-        );
-    }
 }

@@ -12,23 +12,14 @@ public static class CreatePost
 {
     public class Command : PostDto, IRequest<Result<Post>> { }
 
-    public class Handler : IRequestHandler<Command, Result<Post>>
+    public class Handler(IPostRepository postRepo, IMapper mapper) : IRequestHandler<Command, Result<Post>>
     {
-        private readonly IPostRepository _postRepo;
-        private readonly IMapper _mapper;
-
-        public Handler(IPostRepository postRepo, IMapper mapper)
-        {
-            _postRepo = postRepo;
-            _mapper = mapper;
-        }
-
         public async Task<Result<Post>> Handle(Command request, CancellationToken cancellationToken)
         {
-            var post = _mapper.Map<Command, CreatePostDto>(request);
+            var post = mapper.Map<Command, CreatePostDto>(request);
 
-            var result = await _postRepo.CreatePost(post);
-            return result.IsFailure ? result.Errors : result;
+            var result = await postRepo.CreatePost(post);
+            return result;
         }
     }
 }

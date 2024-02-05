@@ -11,22 +11,15 @@ public class GetAllPosts
 {
     public class Command : IRequest<Result<ICollection<Post>>> { }
 
-    public class Handler : IRequestHandler<Command, Result<ICollection<Post>>>
+    public class Handler(IPostRepository postRepo) : IRequestHandler<Command, Result<ICollection<Post>>>
     {
-        private readonly IPostRepository _postRepo;
-
-        public Handler(IPostRepository postRepo)
-        {
-            _postRepo = postRepo;
-        }
-
         public async Task<Result<ICollection<Post>>> Handle(
             Command request,
             CancellationToken cancellationToken
         )
         {
-            var result = await _postRepo.GetAllPosts();
-            return result.IsFailure ? PostErrors.NotFoundAnyPost : result;
+            var result = await postRepo.GetAllPosts();
+            return result;
         }
     }
 }

@@ -12,42 +12,29 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repository;
 
-public class PostRepository : IPostRepository
+public class PostRepository(
+    UserDbContext context,
+    IMapper mapper,
+    IFileService fileService,
+    IHttpContextAccessor contextAccessor)
+    : IPostRepository
 {
-    private readonly UserDbContext _context;
-    private readonly IMapper _mapper;
-    private readonly IFileService _fileService;
-    private readonly IHttpContextAccessor _contextAccessor;
-
-    public PostRepository(
-        UserDbContext context,
-        IMapper mapper,
-        IFileService fileService,
-        IHttpContextAccessor contextAccessor
-    )
-    {
-        _context = context;
-        _mapper = mapper;
-        _fileService = fileService;
-        _contextAccessor = contextAccessor;
-    }
-
     private async Task<string> GenerateFilePath(IFormFile file)
     {
-        var blobFile = await _fileService.UploadAsync(file);
+        var blobFile = await fileService.UploadAsync(file);
         return blobFile.Blob.Uri ?? string.Empty;
     }
 
     public async Task<Result<Post>> CreatePost(CreatePostDto createPostDto)
     {
-        var userId = _contextAccessor.HttpContext?.User.FindFirstValue(
+        var userId = contextAccessor.HttpContext?.User.FindFirstValue(
             nameof(ClaimTypes.NameIdentifier)
         );
         if (userId is null)
         {
             return UserErrors.NotFound;
         }
-        var post = _mapper.Map<CreatePostDto, Post>(createPostDto);
+        var post = mapper.Map<CreatePostDto, Post>(createPostDto);
 
         foreach (
             var postTag in createPostDto.TagId.Select(
@@ -55,7 +42,7 @@ public class PostRepository : IPostRepository
             )
         )
         {
-            _context.PostsTags.Add(postTag);
+            context.PostsTags.Add(postTag);
         }
 
         if (createPostDto is { FileUpload: not null })
@@ -65,31 +52,31 @@ public class PostRepository : IPostRepository
         }
 
         post.UserId = userId;
-        _context.Posts.Add(post);
-        await _context.SaveChangesAsync();
+        context.Posts.Add(post);
+        await context.SaveChangesAsync();
         return post;
     }
 
     public async Task<Result<string>> DeletePost(string id)
     {
-        var post = _context.Posts.FirstOrDefault(x => x.Id == id);
+        var post = context.Posts.FirstOrDefault(p => p.Id == id);
         if (post is null)
             return PostErrors.Nullable;
         var fileName = Path.GetFileNameWithoutExtension(post.MainImage);
-        await _fileService.DeleteAsync(fileName);
-        _context.Posts.Remove(post);
-        await _context.SaveChangesAsync();
+        await fileService.DeleteAsync(fileName);
+        context.Posts.Remove(post);
+        await context.SaveChangesAsync();
         return post.Id;
     }
 
     public async Task<Result<ICollection<Post>>> GetAllPosts()
     {
-        var userId = _contextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = contextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId is null)
         {
             return UserErrors.NotFound;
         }
-        var posts = await _context.Posts
+        var posts = await context.Posts
             .Where(post => post.UserId == userId || post.Public)
             .Include(p => p.User)
             .Select(
@@ -104,42 +91,42 @@ public class PostRepository : IPostRepository
                         User = post.User,
                     }
             )
-            .Include(e => e.User)
+            .Include(p => p.User)
             .ToListAsync();
         return posts;
     }
 
     public async Task<Result<Post>> GetsPostById(string id)
     {
-        var post = await _context.Posts
-            .Include(e => e.Comments)!
-            .ThenInclude(e => e.User)
-            .Include(e => e.User)
-            .FirstOrDefaultAsync(x => x.Id == id);
-        if (post is null)
-            return PostErrors.Nullable;
-        return post;
+        var post = await context.Posts
+            .Include(p => p.Comments)!
+            .ThenInclude(p => p.User)
+            .Include(p => p.User)
+            .Include(p => p.PostTags)
+            .ThenInclude(pt => pt.Tag)
+            .FirstOrDefaultAsync(p => p.Id == id);
+        return post is null ? PostErrors.Nullable : post;
     }
 
     public async Task<Result<Post>> EditPost(EditPostDto editPostDto)
     {
         //TODO change the tags when edit post
-        var post = _context.Posts.FirstOrDefault(x => x.Id == editPostDto.Id);
+        var post = context.Posts.FirstOrDefault(p => p.Id == editPostDto.Id);
         if (post is null)
         {
             return PostErrors.Nullable;
         }
         var fileName = Path.GetFileNameWithoutExtension(post.MainImage);
-        _mapper.Map(editPostDto, post);
+        mapper.Map(editPostDto, post);
 
         if (editPostDto is { FileUpload: not null })
         {
-            await _fileService.DeleteAsync(fileName);
+            await fileService.DeleteAsync(fileName);
             var newFilePath = await GenerateFilePath(editPostDto.FileUpload);
             post.MainImage = newFilePath;
         }
 
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
         return post;
     }
 
@@ -149,7 +136,7 @@ public class PostRepository : IPostRepository
         {
             return TagErrors.Nullable;
         }
-        var posts = await _context.Posts
+        var posts = await context.Posts
             .Where(p => p.PostTags.Any(pt => tags.Contains(pt.TagId)))
             .ToListAsync();
 

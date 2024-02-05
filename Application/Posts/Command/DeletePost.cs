@@ -11,22 +11,15 @@ public class DeletePost
         public string Id { get; init; }
     }
 
-    public class Handler : IRequestHandler<Command, Result<string>>
+    public class Handler(IPostRepository postRepo) : IRequestHandler<Command, Result<string>>
     {
-        private readonly IPostRepository _postRepo;
-
-        public Handler(IPostRepository postRepo)
-        {
-            _postRepo = postRepo;
-        }
-
         public async Task<Result<string>> Handle(
             Command request,
             CancellationToken cancellationToken
         )
         {
-            var result = await _postRepo.DeletePost(request.Id);
-            return result.IsFailure ? result.Errors : result;
+            var result = await postRepo.DeletePost(request.Id);
+            return result;
         }
     }
 }

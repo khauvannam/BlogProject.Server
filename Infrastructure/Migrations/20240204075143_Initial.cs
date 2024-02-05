@@ -196,13 +196,14 @@ namespace Infrastructure.Migrations
                 name: "Tokens",
                 columns: table => new
                 {
-                    RefreshToken = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    TokenId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    RefreshToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ExpiredIn = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Tokens", x => x.RefreshToken);
+                    table.PrimaryKey("PK_Tokens", x => x.TokenId);
                     table.ForeignKey(
                         name: "FK_Tokens_AspNetUsers_UserId",
                         column: x => x.UserId,

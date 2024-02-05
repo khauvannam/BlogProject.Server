@@ -13,19 +13,12 @@ public class GetPostById
         public string Id { get; init; }
     }
 
-    public class Handler : IRequestHandler<Command, Result<Post>>
+    public class Handler(IPostRepository postRepo) : IRequestHandler<Command, Result<Post>>
     {
-        private readonly IPostRepository _postRepo;
-
-        public Handler(IPostRepository postRepo)
-        {
-            _postRepo = postRepo;
-        }
-
         public async Task<Result<Post>> Handle(Command request, CancellationToken cancellationToken)
         {
-            var result = await _postRepo.GetsPostById(request.Id);
-            return result.IsFailure ? result.Errors : result;
+            var result = await postRepo.GetsPostById(request.Id);
+            return result;
         }
     }
 }

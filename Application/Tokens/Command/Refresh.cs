@@ -1,30 +1,51 @@
 ﻿using Application.Abstraction;
+using Application.Error;
 using Domain.Entity.Auth;
+using Domain.Entity.ErrorsHandler;
 using MediatR;
 
 namespace Application.Tokens.Command;
 
 public class Refresh
 {
-    public class Command : IRequest<TokenDto>
+    public class Command : IRequest<Result<TokenDto>>
     {
-        public string AccessToken { get; set; }
-        public string? RefreshToken { get; set; }
+        public string? AccessToken { get; init; }
+        public string? RefreshToken { get; init; }
     }
 
-    public class Handler : IRequestHandler<Command, TokenDto>
+    public class Handler(
+        ITokenRepository tokenRepository,
+        IUserServiceRepository userServiceRepository)
+        : IRequestHandler<Command, Result<TokenDto>>
     {
-        private readonly ITokenRepository _tokenRepository;
-
-        public Handler(ITokenRepository tokenRepository)
+        public async Task<Result<TokenDto>> Handle(
+            Command request,
+            CancellationToken cancellationToken
+        )
         {
-            _tokenRepository = tokenRepository;
-        }
+            var accessToken = request.AccessToken;
+            var refreshToken = request.RefreshToken;
+            if (accessToken is null || refreshToken is null)
+            {
+                return TokenErrors.Invalid;
+            }
+            var principal = userServiceRepository.GetClaims(accessToken!);
+            var userResult = userServiceRepository.CheckExistingUser(principal);
+            if (userResult.IsFailure)
+            {
+                return userResult.Errors;
+            }
 
-        public Task<TokenDto> Handle(Command request, CancellationToken cancellationToken)
-        {
-            var token = new TokenDto(request.AccessToken, request.RefreshToken);
-            return _tokenRepository.Refresh(token);
+            var userId = userResult.Value;
+            var tokenResult = userServiceRepository.CheckValidToken(userId, refreshToken);
+            if (tokenResult.IsFailure)
+            {
+                return tokenResult.Errors;
+            }
+
+            var result = await tokenRepository.Refresh(principal, tokenResult.Value!);
+            return result;
         }
     }
 }

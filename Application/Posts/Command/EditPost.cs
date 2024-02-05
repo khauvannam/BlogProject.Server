@@ -15,22 +15,13 @@ public class EditPost
         public string Id { get; set; }
     }
 
-    public class Handler : IRequestHandler<Command, Result<Post>>
+    public class Handler(IPostRepository postRepo, IMapper mapper) : IRequestHandler<Command, Result<Post>>
     {
-        private readonly IPostRepository _postRepo;
-        private readonly IMapper _mapper;
-
-        public Handler(IPostRepository postRepo, IMapper mapper)
-        {
-            _postRepo = postRepo;
-            _mapper = mapper;
-        }
-
         public async Task<Result<Post>> Handle(Command request, CancellationToken cancellationToken)
         {
-            var post = _mapper.Map<Command, EditPostDto>(request);
-            var result = await _postRepo.EditPost(post);
-            return result.IsFailure ? result.Errors : result;
+            var post = mapper.Map<Command, EditPostDto>(request);
+            var result = await postRepo.EditPost(post);
+            return result;
         }
     }
 }

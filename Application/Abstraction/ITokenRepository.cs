@@ -1,9 +1,11 @@
-﻿using Domain.Entity.Auth;
+﻿using System.Security.Claims;
+using Application.Error;
+using Domain.Entity.Auth;
 
 namespace Application.Abstraction;
 
 public interface ITokenRepository
 {
-    Task<TokenDto> Refresh(TokenDto token);
-    Task Revoke(string id);
+    Task<Result<TokenDto>> Refresh(ClaimsPrincipal principal, Token userToken);
+    Task<Result<string>> Revoke(string id);
 }

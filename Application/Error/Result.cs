@@ -2,12 +2,19 @@
 
 namespace Application.Error;
 
-public class Result<T>
+public class Result<T> where T : class 
 {
-    public Result(T? value, bool isSuccess, Errors errors)
+    private Result(T? value) // Success Path
     {
         Value = value;
-        IsSuccess = isSuccess;
+        IsSuccess = true;
+        Errors = Errors.None;
+    }
+
+    private Result(Errors errors) //Failure path
+    {
+        Value = default;
+        IsSuccess = false;
         Errors = errors;
     }
 
@@ -16,7 +23,7 @@ public class Result<T>
     private bool IsSuccess { get; }
     public bool IsFailure => !IsSuccess;
 
-    public static implicit operator Result<T>(T value) => new(value, true, Errors.None);
+    public static implicit operator Result<T>(T value) => new(value);
 
-    public static implicit operator Result<T>(Errors errors) => new(default, false, errors);
+    public static implicit operator Result<T>(Errors errors) => new(errors);
 }

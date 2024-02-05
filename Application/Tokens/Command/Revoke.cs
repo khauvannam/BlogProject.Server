@@ -1,27 +1,25 @@
 ﻿using Application.Abstraction;
+using Application.Error;
 using MediatR;
 
 namespace Application.Tokens.Command;
 
 public class Revoke
 {
-    public class Command : IRequest
+    public class Command : IRequest<Result<string>>
     {
-        public string Id { get; set; }
+        public string? Id { get; init; }
     }
 
-    public class Handler : IRequestHandler<Command>
+    public class Handler(ITokenRepository tokenRepository) : IRequestHandler<Command, Result<string>>
     {
-        private readonly ITokenRepository _tokenRepository;
-
-        public Handler(ITokenRepository tokenRepository)
+        public async Task<Result<string>> Handle(
+            Command request,
+            CancellationToken cancellationToken
+        )
         {
-            _tokenRepository = tokenRepository;
-        }
-
-        public async Task Handle(Command request, CancellationToken cancellationToken)
-        {
-            await _tokenRepository.Revoke(request.Id);
+            var result = await tokenRepository.Revoke(request.Id!);
+            return result;
         }
     }
 }

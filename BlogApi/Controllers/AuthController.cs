@@ -9,30 +9,23 @@ namespace Blog_Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AuthController : ControllerBase
+public class AuthController(ISender mediator, IMapper mapper) : ControllerBase
 {
-    private readonly IMediator _mediator;
-    private readonly IMapper _mapper;
-
-    public AuthController(IMediator mediator, IMapper mapper)
-    {
-        _mediator = mediator;
-        _mapper = mapper;
-    }
-
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
     {
-        var user = _mapper.Map<RegisterDto, RegisterUser.Command>(registerDto);
-        var result = await _mediator.Send(user);
-        return Ok($"Your account with username {result.Value} is created successful");
+        var user = mapper.Map<RegisterDto, RegisterUser.Command>(registerDto);
+        var result = await mediator.Send(user);
+        return result.IsFailure
+            ? BadRequest(result.Errors)
+            : Ok($"Your account with username {result.Value} is created successful");
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
     {
-        var loginUser = _mapper.Map<LoginDto, LoginUser.Command>(loginDto);
-        var result = await _mediator.Send(loginUser);
+        var loginUser = mapper.Map<LoginDto, LoginUser.Command>(loginDto);
+        var result = await mediator.Send(loginUser);
         if (result.IsFailure)
         {
             return Unauthorized(result.Errors);

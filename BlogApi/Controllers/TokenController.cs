@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Application.Tokens.Command;
 using Domain.Entity.Auth;
+using Domain.Entity.ErrorsHandler;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,26 +9,19 @@ namespace Blog_Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class TokenController : ControllerBase
+public class TokenController(ISender mediator) : ControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public TokenController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh(TokenDto tokenDto)
     {
-        var token = new Refresh.Command
+        var tokenCommand = new Refresh.Command
         {
             RefreshToken = tokenDto.RefreshToken,
             AccessToken = tokenDto.AccessToken
         };
-        var refreshToken = await _mediator.Send(token);
+        var result = await mediator.Send(tokenCommand);
 
-        return Ok(refreshToken);
+        return result.IsFailure ? BadRequest(result.Errors) : Ok(result.Value);
     }
 
     [HttpPost("revoke")]
@@ -36,10 +30,10 @@ public class TokenController : ControllerBase
         var userId = User.FindFirstValue(nameof(ClaimTypes.NameIdentifier));
         if (userId is null)
         {
-            return BadRequest();
+            return BadRequest(UserErrors.NotFound);
         }
         var revokeToken = new Revoke.Command { Id = userId };
-        await _mediator.Send(revokeToken);
-        return NoContent();
+        var result = await mediator.Send(revokeToken);
+        return result.IsFailure ? BadRequest(result.Errors) : Ok(result.Value);
     }
 }

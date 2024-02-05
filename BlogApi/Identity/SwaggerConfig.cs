@@ -1,10 +1,17 @@
 ﻿using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace Blog_Api.Identity;
 
 public static class SwaggerConfig
 {
+    public static void AddSwaggerUiConfig(this SwaggerUIOptions options)
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "BlogApi V1");
+        options.RoutePrefix = "";
+    }
+
     public static void AddSwaggerAuth(this SwaggerGenOptions options)
     {
         options.AddSecurityDefinition(
